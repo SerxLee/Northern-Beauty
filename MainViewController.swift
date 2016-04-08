@@ -21,7 +21,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var urlString: String =  "http://usth.applinzi.com"
     var userName: String!
     var passWord: String!
-    var type: String = "semester"
+    var type: String!
     var selectedTitle: String!
     
     var sectionTitle: String!
@@ -34,36 +34,37 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.tableView.delegate = self
         self.tableView.dataSource = self
+        
+        let title = self.segment.titleForSegmentAtIndex(self.segment.selectedSegmentIndex)
+        getType(title!)
+        connectAndSearch()
         
         //remove the blank space tableView Cell
         self.tableView.tableFooterView = UIView.init()
 
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        type = "semester"
-        connectAndSearch()
     }
 
 
     @IBAction func segmentChangeAction(sender: UISegmentedControl) {
         
         let title = self.segment.titleForSegmentAtIndex(self.segment.selectedSegmentIndex)
-        if title == "最近一学期成绩"{
-            type = "semester"
-        }else if title == "全部及格成绩"{
-            type = "passing"
-        }else if title == "不及格成绩"{
-            type = "fail"
-        }
+        getType(title!)
         
         dataSourse = []
         yetFailDataSourse = []
         connectAndSearch()
+    }
+    
+    private func getType(segmentString: String){
+        if segmentString == "最近一学期成绩"{
+            type = "semester"
+        }else if segmentString == "全部及格成绩"{
+            type = "passing"
+        }else if segmentString == "不及格成绩"{
+            type = "fail"
+        }
     }
     
     var semesters: [String] = []
@@ -73,10 +74,10 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let session = AFHTTPSessionManager()
         let myParameters: Dictionary = ["username":userName, "password": passWord, "type": type]
         
-        session.POST(urlString, parameters: myParameters, success: {  (NSURLSessionDataTask dataTask, operation) -> Void in
+        session.POST(urlString, parameters: myParameters, success: {  (dataTask, operation) -> Void in
             
             NSLog("GET seccess")
-            let dict =  operation?.cookies
+//            let dict =  operation?.cookies
             
             if operation != nil{
                 print(operation)
@@ -96,7 +97,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     self.tableView.reloadData()
                 }
             }
-            }) {  (NSURLSessionDataTask dataTask, NSError error) -> Void in
+            }) {  (dataTask, error) -> Void in
                 print(error.localizedDescription)
         }
     }
@@ -139,7 +140,6 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
         var titleString: String = ""
-        
         if type == "semester"{
             titleString = "最近一学期成绩"
         }else if type == "fail"{
@@ -157,7 +157,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier: String = "MainTableViewCell"
-        var cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? MainViewControllerTableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? MainViewControllerTableViewCell
 
         
         let row = indexPath.row
