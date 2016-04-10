@@ -23,12 +23,16 @@ class SSCourseCell: UITableViewCell {
             topSeperator?.hidden = !showTopSeperator
         }
     }
+    
+    var test: Bool = false
 
     @IBOutlet weak var userImage: UIImageView!
     @IBOutlet weak var commentTextView: UITextView!
     @IBOutlet weak var lastCommentTextView: UITextView!
     @IBOutlet weak var sentTime: UILabel!
     @IBOutlet weak var replyButton: UIButton!
+    @IBOutlet weak var likeNum: UILabel!
+    @IBOutlet weak var likeButton: UIButton!
     
     @IBOutlet weak var topSeperator: UIView!
     @IBOutlet weak var lastCommentSeperator: UIView!
@@ -49,7 +53,31 @@ class SSCourseCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
+        topSeperator?.backgroundColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
+        topSeperatorHeightConstraint?.constant = 0.5
+
+        commentTextView.backgroundColor = UIColor.clearColor()
+        commentTextView.scrollEnabled = false
+        commentTextView.showsVerticalScrollIndicator = false
+        commentTextView.showsHorizontalScrollIndicator = false
+        commentTextView.editable = false
+        commentTextView.selectable = false
+        commentTextView.userInteractionEnabled = false
+        
+        lastCommentTextView.backgroundColor = UIColor.lightGrayColor()
+        lastCommentTextView.scrollEnabled = false
+        lastCommentTextView.showsVerticalScrollIndicator = false
+        lastCommentTextView.showsHorizontalScrollIndicator = false
+        lastCommentTextView.editable = false
+        lastCommentTextView.selectable = false
+        lastCommentTextView.userInteractionEnabled = false
+        
+        sentTime?.backgroundColor = UIColor.clearColor()
+
+        
         replyButton.addTarget(self, action: #selector(SSCourseCell.clickReplyButton(_:)), forControlEvents: .TouchUpInside)
+        likeButton.addTarget(self, action: #selector(SSCourseCell.clickLikeButton(_:)), forControlEvents:
+        .TouchUpInside)
     }
     
     override func setSelected(selected: Bool, animated: Bool) {
@@ -62,84 +90,121 @@ class SSCourseCell: UITableViewCell {
         
         var cellHeight: CGFloat = 0
         
-        let studentName = data?[""] as? String
-        let textContent = data?[""] as? String
-        let lastStudentName = data?[""] as? String
-        let lastcomment = data?[""] as? String
+        let studentName = data?["authorName"] as? String
+        let textContent = data?["content"] as? String
+        let lastStudentName = data?["refedAuthor"] as? String
+        let lastcomment = data?["refedContent"] as? String
         
         let commentTextViewWidth = cellWidth - mainCommentTextViewLittleThanCellWidth
         
         //set the main comment show view
+        
         let commentAttributedText = SSCourseCell.buildCommmentTextViewAttributedTextWithAuthorName(studentName, commentTextContent: textContent)
-        cellHeight += SSCourseCell.commentTextViewHeightWithAttributedText(commentAttributedText, commentTextViewWidth: commentTextViewWidth)
-        
-        
-        cellHeight += lastCommentShowViewTopMargin
-        
-        
+        let commentTextHeight = SSCourseCell.commentTextViewHeightWithAttributedText(commentAttributedText, commentTextViewWidth: commentTextViewWidth)
+        cellHeight += commentTextHeight
+ 
         //set the last comment show view
-        if !(lastcomment!.isEmpty){
+        if !(lastcomment!.isEmpty) && lastcomment != ""{
             let lastCommentSeperatorWidth = commentTextViewWidth - lastCommentTextViewLittleThanCommentWidth
             let lastCommentAttributedText = SSCourseCell.buildCommmentTextViewAttributedTextWithAuthorName(lastStudentName, commentTextContent: lastcomment)
             cellHeight += SSCourseCell.commentTextViewHeightWithAttributedText(lastCommentAttributedText, commentTextViewWidth: lastCommentSeperatorWidth)
+            cellHeight += lastCommentShowViewTopMargin
         }
         
         //set the create date label
         cellHeight += (commentCreateDateLabelHeight + commentCreateDateLabelTopMargin + commentCreateDateLabelBottomMargin)
         
         //
-        return cellHeight > commentCellMinHeight ? cellHeight : commentCellMinHeight
+        let limHeight = cellHeight > commentCellMinHeight ? cellHeight + 22.0: commentCellMinHeight
+        return limHeight
     }
     
-
-    func configWithData(data: [String: AnyObject]? = nil, cellWidth: CGFloat = 0){
-    
-        let studentName = data?[""] as? String
-        let textContent = data?[""] as? String
-        let lastStudentName = data?[""] as? String
-        let lastcomment = data?[""] as? String
-        let createDate = data?[""]  as? NSDate
-
+    func configWithData(data: [String: AnyObject]!, cellWidth: CGFloat = 0){
+//        print(data)
+        let studentName = data?["authorName"] as? String
+        let textContent = data?["content"] as? String
+        let lastStudentName = data?["refedAuthor"] as? String
+        let lastcomment = data?["refedContent"] as? String
+        let createDate = data?["time"]  as? Int
+        let like = data?["digg"] as? Int
+        let digged = data!["digged"] as! Int
+//        print(data!["digged"])
         
         let commentTextViewWidth = cellWidth - mainCommentTextViewLittleThanCellWidth
         
         // 设置文字内容
         let commentAttributedText = SSCourseCell.buildCommmentTextViewAttributedTextWithAuthorName(studentName, commentTextContent:textContent)
         commentTextViewHeightConstraint.constant = SSCourseCell.commentTextViewHeightWithAttributedText(commentAttributedText, commentTextViewWidth: commentTextViewWidth)
+        self.commentTextView.attributedText = commentAttributedText
         
         // 设置时间
-        if createDate != nil {
-            //FIXME: set the date time with timestemp
-//            sentTime?.text = MHPrettyDate.prettyDateFromDate(createDate, withFormat: MHPrettyDateFormatWithTime)
-        } else {
-            sentTime?.text = nil
+        let date = NSDate(timeIntervalSince1970: Double(createDate!))
+        let dateFormatter:NSDateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString:String = dateFormatter.stringFromDate(date)
+        
+        sentTime.text = String(dateString)
+        
+        //set show like label
+        self.likeNum.text = String(like!)
+        
+        //set show like button image
+        if digged == 1{
+            let redheart = UIImage(named: "redHeart")
+            self.likeButton.setImage(redheart, forState: UIControlState.Normal)
+        }else{
+            let blackheart = UIImage(named: "blackHeart")
+            self.likeButton.setImage(blackheart, forState: UIControlState.Normal)
         }
         
-        //set the last comment show view
+        //MARK:set the last comment show view
         if !(lastcomment!.isEmpty){
             let lastCommentSeperatorWidth = commentTextViewWidth - lastCommentTextViewLittleThanCommentWidth
             let lastCommentAttributedText = SSCourseCell.buildCommmentTextViewAttributedTextWithAuthorName(lastStudentName, commentTextContent: lastcomment)
             let limHeight:CGFloat = SSCourseCell.commentTextViewHeightWithAttributedText(lastCommentAttributedText, commentTextViewWidth: lastCommentSeperatorWidth)
-            lastCommentTextViewHeightConstraint.constant = limHeight
-            lastCommentShowViewHeightConstraint.constant = limHeight
+            lastCommentTextViewHeightConstraint.constant = limHeight + 5
+            lastCommentShowViewHeightConstraint.constant = limHeight + 5
+            lastCommentSeperator.layer.cornerRadius = 5.0
+            lastCommentSeperator.layer.masksToBounds = true
             
-        }
+            lastCommentSeperator.hidden = false
+            print(lastCommentAttributedText?.string)
 
+            self.lastCommentTextView.attributedText = lastCommentAttributedText
+        }else{
+            lastCommentSeperator.hidden = true
+
+            self.lastCommentTextView.text = "aa"
+        }
     }
+ 
 
     
 
     static private func buildCommmentTextViewAttributedTextWithAuthorName(authorName: String?, commentTextContent: String?) -> NSAttributedString?{
         let attributedText = NSMutableAttributedString()
         
-        // 动态发布者名字
-        if authorName?.isEmpty == false {
+        // MARK:动态发布者名字
+        if authorName != nil{
             let namePS = NSMutableParagraphStyle()
             namePS.lineSpacing = 2
             namePS.paragraphSpacing = 8
             attributedText.appendAttributedString(NSAttributedString(string:authorName!, attributes:[NSFontAttributeName:UIFont.systemFontOfSize(18), NSForegroundColorAttributeName:UIColor.blackColor(), NSParagraphStyleAttributeName:namePS]))
         }
         
+        if commentTextContent?.isEmpty == false {
+            if attributedText.length > 0 {
+                attributedText.appendAttributedString(NSAttributedString(string: "\n"))
+            }
+            
+            let contentPS = NSMutableParagraphStyle()
+            contentPS.lineSpacing = 2
+            contentPS.paragraphSpacing = 4
+            attributedText.appendAttributedString(NSAttributedString(string:commentTextContent!, attributes:[NSFontAttributeName:UIFont.systemFontOfSize(14), NSForegroundColorAttributeName:UIColor.blackColor(), NSParagraphStyleAttributeName:contentPS]))
+        }
+
+//        print(attributedText)
+
         return attributedText
     }
     
@@ -160,15 +225,27 @@ class SSCourseCell: UITableViewCell {
         let sizingTextViewSize = Static.sizingTextView?.sizeThatFits(CGSizeMake(commentTextViewWidth!, CGFloat(MAXFLOAT)))
         return sizingTextViewSize!.height
     }
+    
+    //the SSCourseCellDelegate method
     func clickReplyButton(button: UIButton) {
-        delegate?.commentCell(self, didClickReplyButton: button)
+        delegate?.commentCell!(self, didClickReplyButton: button)
     }
+    
+    func clickLikeButton(button: UIButton) {
+
+        NSLog("first diaoyong")
+
+        
+        delegate?.commentCell!(self, didClickLikeButton: button)
+    }
+    
+    func 
 }
 
-protocol SSCourseCellDelegate {
+@objc protocol SSCourseCellDelegate {
     
-    func commentCell(commentCell: SSCourseCell, didClickReplyButton: UIButton)
-    
+    optional func commentCell(commentCell: SSCourseCell, didClickReplyButton: UIButton)
+    optional func commentCell(commentCell: SSCourseCell, didClickLikeButton: UIButton)
 }
 
 
@@ -178,9 +255,9 @@ let commentCellBottomPadding: CGFloat = 8
 
 let commentTextVeiwTopMargin: CGFloat = 0
 
-let lastCommentTextViewLittleThanCommentWidth: CGFloat = 52
+let lastCommentTextViewLittleThanCommentWidth: CGFloat = 22
 let mainCommentTextViewLittleThanCellWidth: CGFloat = 66
-let lastCommentShowViewTopMargin: CGFloat = 7
+let lastCommentShowViewTopMargin: CGFloat = 10
 
 
 let commentCreateDateLabelTopMargin: CGFloat = 8

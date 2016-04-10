@@ -13,12 +13,14 @@ import UIKit
 import Foundation
 import AFNetworking
 
+public let session = AFHTTPSessionManager()
+
 class MainViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var segment: UISegmentedControl!
     
-    var urlString: String =  "http://usth.applinzi.com"
+    var urlString: String =  "http://msghub.eycia.me:4001/Score"
     var userName: String!
     var passWord: String!
     var type: String!
@@ -54,6 +56,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         dataSourse = []
         yetFailDataSourse = []
+        tableView.reloadData()
         connectAndSearch()
     }
     
@@ -71,7 +74,6 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func connectAndSearch(){
         
-        let session = AFHTTPSessionManager()
         let myParameters: Dictionary = ["username":userName, "password": passWord, "type": type]
         
         session.POST(urlString, parameters: myParameters, success: {  (dataTask, operation) -> Void in
@@ -80,7 +82,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
 //            let dict =  operation?.cookies
             
             if operation != nil{
-                print(operation)
+//                print(operation)
 
                 let status:String = operation!["status"] as! String
                 if status == "ok"{
@@ -181,6 +183,11 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cell!.CourseScore.text = dataSourse[row]["socre"] as? String
         cell!.CourseName.text = dataSourse[row]["course_name"] as? String
         return cell!
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        dict = dataSourse[indexPath.row]
     }
 
     /*
