@@ -64,7 +64,7 @@ class SSCourseCell: UITableViewCell {
         commentTextView.selectable = false
         commentTextView.userInteractionEnabled = false
         
-        lastCommentTextView.backgroundColor = UIColor.lightGrayColor()
+//        lastCommentTextView.backgroundColor = UIColor.lightGrayColor()
         lastCommentTextView.scrollEnabled = false
         lastCommentTextView.showsVerticalScrollIndicator = false
         lastCommentTextView.showsHorizontalScrollIndicator = false
@@ -120,7 +120,6 @@ class SSCourseCell: UITableViewCell {
     }
     
     func configWithData(data: [String: AnyObject]!, cellWidth: CGFloat = 0){
-//        print(data)
         let studentName = data?["authorName"] as? String
         let textContent = data?["content"] as? String
         let lastStudentName = data?["refedAuthor"] as? String
@@ -128,7 +127,6 @@ class SSCourseCell: UITableViewCell {
         let createDate = data?["time"]  as? Int
         let like = data?["digg"] as? Int
         let digged = data!["digged"] as! Int
-//        print(data!["digged"])
         
         let commentTextViewWidth = cellWidth - mainCommentTextViewLittleThanCellWidth
         
@@ -138,12 +136,10 @@ class SSCourseCell: UITableViewCell {
         self.commentTextView.attributedText = commentAttributedText
         
         // 设置时间
-        let date = NSDate(timeIntervalSince1970: Double(createDate!))
-        let dateFormatter:NSDateFormatter = NSDateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let dateString:String = dateFormatter.stringFromDate(date)
+        let date = NSDate(timeIntervalSince1970: Double(createDate!)).fullDescription()
+
         
-        sentTime.text = String(dateString)
+        sentTime.text = String(date)
         
         //set show like label
         self.likeNum.text = String(like!)
@@ -168,7 +164,6 @@ class SSCourseCell: UITableViewCell {
             lastCommentSeperator.layer.masksToBounds = true
             
             lastCommentSeperator.hidden = false
-            print(lastCommentAttributedText?.string)
 
             self.lastCommentTextView.attributedText = lastCommentAttributedText
         }else{
@@ -203,7 +198,6 @@ class SSCourseCell: UITableViewCell {
             attributedText.appendAttributedString(NSAttributedString(string:commentTextContent!, attributes:[NSFontAttributeName:UIFont.systemFontOfSize(14), NSForegroundColorAttributeName:UIColor.blackColor(), NSParagraphStyleAttributeName:contentPS]))
         }
 
-//        print(attributedText)
 
         return attributedText
     }
@@ -232,14 +226,8 @@ class SSCourseCell: UITableViewCell {
     }
     
     func clickLikeButton(button: UIButton) {
-
-        NSLog("first diaoyong")
-
-        
         delegate?.commentCell!(self, didClickLikeButton: button)
     }
-    
-    func 
 }
 
 @objc protocol SSCourseCellDelegate {

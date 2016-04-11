@@ -27,5 +27,12 @@ class SSReplyComment: AnyObject{
     var time: AnyObject = 0
     var digged: AnyObject = false
     var id: AnyObject = 0
-
+    
+    func getAddLim() -> NSDictionary{
+        let getNewDict: NSDictionary = {
+            let addLim = ["refedAuthor": refedAuthor, "content": content, "id": id, "time": time, "digged": digged, "authorName": authorName, "className": className, "refedContent": refedContent, "RefedAuthorId": RefedAuthorId, "digg": digg, "refId": refId, "stuId": stuId] as NSDictionary
+            return addLim
+        }()
+        return getNewDict
+    }
 }

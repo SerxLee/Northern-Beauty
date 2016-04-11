@@ -29,12 +29,12 @@ class CourseDetailViewController: UIViewController {
     
     func fillTheInfomation(){
         
-        courseNum.text = dict["course_id"] as? String
-        courseName.text = dict["course_name"] as? String
-        courseID.text = dict["course_no"] as? String
+        courseNum.text = dict["id"] as? String
+        courseName.text = dict["name"] as? String
+        courseID.text = dict["no"] as? String
         courseCredit.text = dict["credit"] as? String
-        courseAttribute.text = dict["course_attribute"] as? String
-        courseScore.text = dict["socre"] as? String
+        courseAttribute.text = dict["type"] as? String
+        courseScore.text = dict["score"] as? String
     }
     
     @IBAction func backAction(sender: UIBarButtonItem) {
@@ -45,7 +45,7 @@ class CourseDetailViewController: UIViewController {
         
         if segue.identifier == "ToCommentController"{
             let nextViewController = segue.destinationViewController as! SSCourseCommentTableView
-            nextViewController.navigationController?.title = dict["course_name"] as? String
+            nextViewController.courseName = (dict["name"] as? String)!
         }
     }
 }

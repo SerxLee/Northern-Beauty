@@ -14,6 +14,12 @@ import Foundation
 import AFNetworking
 
 public let session = AFHTTPSessionManager()
+var cacheCourseData = NSMutableDictionary()
+var cacheSemester = NSMutableDictionary()
+var cacheSemesterNum = NSMutableDictionary()
+
+var allCourse : [NSDictionary] = []
+var studenInfo: NSDictionary!
 
 class MainViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -23,43 +29,82 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var urlString: String =  "http://msghub.eycia.me:4001/Score"
     var userName: String!
     var passWord: String!
-    var type: String!
+    var type: String = "passing"
     var selectedTitle: String!
     
     var sectionTitle: String!
 
-    var dataSourse = [NSDictionary]()
-    var yetFailDataSourse = [NSDictionary]()
-    var allPassCourse = NSDictionary()
-    
+    var courseDataSourse : [Dictionary<String, String>] = []
+    var threeName: NSMutableDictionary!
+    var DataSourse : NSMutableDictionary!
 
     
     override func viewDidLoad() {
+        getDataWithAllCourse()
         super.viewDidLoad()
         self.tableView.delegate = self
         self.tableView.dataSource = self
-        
-        let title = self.segment.titleForSegmentAtIndex(self.segment.selectedSegmentIndex)
-        getType(title!)
-        connectAndSearch()
-        
-        //remove the blank space tableView Cell
         self.tableView.tableFooterView = UIView.init()
-
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
     }
 
 
     @IBAction func segmentChangeAction(sender: UISegmentedControl) {
-        
+        courseDataSourse = []
+        allSemesters = []
+        //FIXME: change the path of the data of course
         let title = self.segment.titleForSegmentAtIndex(self.segment.selectedSegmentIndex)
         getType(title!)
-        
-        dataSourse = []
-        yetFailDataSourse = []
-        tableView.reloadData()
-        connectAndSearch()
+        if cacheCourseData[type] == nil || cacheSemesterNum[type] == nil || cacheSemester[type] == nil{
+            connetURL()
+            segment.enabled = false
+        }else{
+            allSemesters = cacheSemester[type] as! [String]
+            semestersNum = cacheSemesterNum[type] as! Int
+            DataSourse = cacheCourseData[type] as! NSMutableDictionary
+            self.tableView.reloadData()
+        }
     }
     
+    func connetURL(){
+        let eyciaURL = "http://msghub.eycia.me:4001/Score?username=\(userName)&password=\(passWord)&type=\(type)"
+
+        session.POST(eyciaURL, parameters: nil, success: { (dataTask, response) in
+            
+//            print(response)
+            let error = response!["err"] as! Int
+            if error == 0{
+                let lim_data = response!["data"] as! NSDictionary
+                allCourse = lim_data["info"] as! [NSDictionary]
+                self.semestersNum = allCourse.count
+                
+                let limm = NSMutableDictionary()
+                for dic in allCourse{
+                    let dicType = dic["block_name"] as! String
+                    self.allSemesters.append(dicType)
+                    let lim = dic["courses"] as! [NSDictionary]
+                    
+                    limm.addEntriesFromDictionary([dicType : lim])
+                }
+                self.DataSourse = limm
+                cacheSemester.addEntriesFromDictionary([self.type : self.allSemesters])
+                cacheSemesterNum.addEntriesFromDictionary([self.type : self.semestersNum])
+                cacheCourseData.addEntriesFromDictionary([self.type : limm])
+                self.tableView.reloadData()
+                self.segment.enabled = true
+            }
+        })
+        {  (dataTask, error) -> Void in
+            print(error.localizedDescription)
+            self.segment.enabled = true
+        }
+
+    }
+    
+    //FIXME: get the information according segmentString
     private func getType(segmentString: String){
         if segmentString == "最近一学期成绩"{
             type = "semester"
@@ -70,40 +115,35 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
     }
     
-    var semesters: [String] = []
+    var semestersNum: Int = 0
+    var allSemesters =  [String]()
     
-    func connectAndSearch(){
-        
-        let myParameters: Dictionary = ["username":userName, "password": passWord, "type": type]
-        
-        session.POST(urlString, parameters: myParameters, success: {  (dataTask, operation) -> Void in
+    //before load the view
+    func getDataWithAllCourse(){
+//        var fen: Int = 0
+        self.semestersNum = allCourse.count
+        let limm = NSMutableDictionary()
+        for dic in allCourse{
+            let dicType = dic["block_name"] as! String
+            self.allSemesters.append(dicType)
+            let lim = dic["courses"] as! [NSDictionary]
+//            
+//            for course in lim{
+//                let aa = course["score"] as! Int
+//                if aa >= 60{
+//                    fen = fen + (course["credit"] as! Int)
+//                }
+//            }
             
-            NSLog("GET seccess")
-//            let dict =  operation?.cookies
-            
-            if operation != nil{
-//                print(operation)
-
-                let status:String = operation!["status"] as! String
-                if status == "ok"{
-                    if self.type == "passing"{
-                        self.semesters = operation!["semeters"] as! [String]
-                        self.allPassCourse = operation as! NSDictionary
-                        
-                    }else if self.type == "fail"{
-                        self.dataSourse = operation!["ever_fail_grade"] as! [NSDictionary]
-                        self.yetFailDataSourse = operation!["yet_fail_grade"] as! [NSDictionary]
-                    }else{
-                       self.dataSourse = operation!["this_semester_grade"] as! [NSDictionary]
-                    }
-                    self.tableView.reloadData()
-                }
-            }
-            }) {  (dataTask, error) -> Void in
-                print(error.localizedDescription)
+            limm.addEntriesFromDictionary([dicType : lim])
         }
+//        xuefen = fen
+        DataSourse = limm
+        cacheSemester.addEntriesFromDictionary([self.type : self.allSemesters])
+        cacheSemesterNum.addEntriesFromDictionary([self.type : self.semestersNum])
+        cacheCourseData.addEntriesFromDictionary([self.type : limm])
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -111,83 +151,45 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     
     
+    
+    //MARK: - tableview delegate and datasourse
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        if type == "semester"{
-            return self.dataSourse.count
-        }else if type == "fail"{
-            if section == 0{
-                return self.dataSourse.count
-            }
-            if section == 1{
-                return self.yetFailDataSourse.count
-            }
-        }else{
-            return self.allPassCourse[semesters[section]]!.count
-        }
-        return 0
+        return DataSourse[allSemesters[section]]!.count
+
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        
-        if type == "semester"{
-            return 1
-        }else if type == "fail"{
-            return 2
-        }else{
-            return self.semesters.count
-        }
+        return self.semestersNum
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        
-        var titleString: String = ""
-        if type == "semester"{
-            titleString = "最近一学期成绩"
-        }else if type == "fail"{
-            if section == 0{
-                titleString = "曾经未通过"
-            }else if section == 1{
-                titleString = "还未通过"
-            }
-        }else{
-            
-            titleString = semesters[section] + "学期"
-        }
-        return titleString
+            return allSemesters[section]
+
     }
-    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier: String = "MainTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? MainViewControllerTableViewCell
 
-        
         let row = indexPath.row
         let indexOfSection = indexPath.section
         var stringOfSection: String!
         
-        if type == "passing"{
-            stringOfSection = semesters[indexOfSection]
-            dataSourse = allPassCourse[stringOfSection] as! [NSDictionary]
-        }
-        
-        if type == "fail"{
-            if indexOfSection == 1{
-                cell!.CourseNum.text = yetFailDataSourse[row]["course_id"] as? String
-                cell!.CourseScore.text = yetFailDataSourse[row]["socre"] as? String
-                cell!.CourseName.text = yetFailDataSourse[row]["course_name"] as? String
-                return cell!
-            }
-        }
-        cell!.CourseNum.text = dataSourse[row]["course_id"] as? String
-        cell!.CourseScore.text = dataSourse[row]["socre"] as? String
-        cell!.CourseName.text = dataSourse[row]["course_name"] as? String
+        stringOfSection = allSemesters[indexOfSection]
+        courseDataSourse = cacheCourseData[type]![stringOfSection]! as! [Dictionary<String, String>]
+
+        cell!.CourseNum.text = courseDataSourse[row]["id"]! as String
+        cell!.CourseScore.text = courseDataSourse[row]["score"]! as String
+        cell!.CourseName.text = courseDataSourse[row]["name"]! as String
         return cell!
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        dict = dataSourse[indexPath.row]
+        let row = indexPath.row
+        let indexOfSection = indexPath.section
+        var stringOfSection: String!
+        stringOfSection = allSemesters[indexOfSection]
+
+        dict = cacheCourseData[type]![stringOfSection]!![row] as! NSDictionary
     }
 
     /*
