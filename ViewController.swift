@@ -8,8 +8,9 @@
 
 import UIKit
 import AFNetworking
+import SVProgressHUD
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITextFieldDelegate{
 
     let checkURL = "http://msghub.eycia.me:4001/Score"
     
@@ -23,7 +24,10 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        userName.delegate = self
+        passWord.delegate = self
+        ViewController.progressInit()
+        ViewController.initAllPublicCache()
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -36,11 +40,20 @@ class ViewController: UIViewController {
         checkLoginInformation()
     }
     
+    //MARK: Inti all the cache
+    static func initAllPublicCache(){
+        cacheSemester.removeAllObjects()
+        cacheCourseData.removeAllObjects()
+        cacheSemesterNum.removeAllObjects()
+    }
+    
     func checkLoginInformation(){
+
         let account: String = userName.text!
         let password: String = passWord.text!
         let myParameters: Dictionary = ["username":account, "password": password, "type": "passing"]
-        
+        SVProgressHUD.show()
+
         session.POST(checkURL, parameters: myParameters, success: {  (dataTask, operation) -> Void in
             
             let error = operation!["err"] as! Int
@@ -54,14 +67,36 @@ class ViewController: UIViewController {
                 self.courseDataSourse = lim_data["info"] as! [NSDictionary]
                 self.studenInfoData = lim_data["school_roll_info"] as! NSDictionary
                 
+//                print(self.studenInfoData)
+                SVProgressHUD.showSuccessWithStatus("登录成功")
+                
+//                SVProgressHUD.dismiss()
                 self.performSegueWithIdentifier("goToMainView", sender: nil)
                 
             }else{
                 print(operation!["reason"])
+                var message = operation!["reason"] as! String
+                if message == "Post http://60.219.165.24/loginAction.do: net/http: request canceled (Client.Timeout exceeded while awaiting headers)"{
+                    message = "^ ^...Timeout, try again"
+                }
+                SVProgressHUD.showErrorWithStatus(message)
+
             }
         }) {  (dataTask, error) -> Void in
             print(error.localizedDescription)
         }
+    }
+    
+    static func progressInit(){
+        SVProgressHUD.setDefaultStyle(SVProgressHUDStyle.Dark)
+        SVProgressHUD.setBackgroundColor(UIColor(red: 0, green: 0, blue: 0, alpha: 1))
+//        SVProgressHUD.setBackgroundColor(UIColor.lightGrayColor())
+        SVProgressHUD.setForegroundColor(UIColor(red: 1, green: 1, blue: 1, alpha: 1))
+        SVProgressHUD.setRingThickness(5.0)
+        SVProgressHUD.setFont(UIFont(name: "AmericanTypewriter", size: 12.0))
+        SVProgressHUD.setMinimumDismissTimeInterval(3.0)
+
+
     }
     
     
@@ -110,6 +145,18 @@ class ViewController: UIViewController {
             studenInfo = self.studenInfoData
         }
     }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        
+        if userName.isFirstResponder() {
+//            self.userName.resignFirstResponder()
+            self.passWord.isFirstResponder()
+        }else if passWord.isFirstResponder() {
+            self.passWord.resignFirstResponder()
+            checkLoginInformation()
+        }
 
+        return true
+    }
 }
 

@@ -8,7 +8,7 @@
 
 import UIKit
 
-var dict: NSDictionary!
+var dict: NSDictionary?
 
 
 class CourseDetailViewController: UIViewController {
@@ -29,12 +29,12 @@ class CourseDetailViewController: UIViewController {
     
     func fillTheInfomation(){
         
-        courseNum.text = dict["id"] as? String
-        courseName.text = dict["name"] as? String
-        courseID.text = dict["no"] as? String
-        courseCredit.text = dict["credit"] as? String
-        courseAttribute.text = dict["type"] as? String
-        courseScore.text = dict["score"] as? String
+        courseNum.text = dict!["id"] as? String
+        courseName.text = dict!["name"] as? String
+        courseID.text = dict!["no"] as? String
+        courseCredit.text = dict!["credit"] as? String
+        courseAttribute.text = dict!["type"] as? String
+        courseScore.text = dict!["score"] as? String
     }
     
     @IBAction func backAction(sender: UIBarButtonItem) {
@@ -45,7 +45,8 @@ class CourseDetailViewController: UIViewController {
         
         if segue.identifier == "ToCommentController"{
             let nextViewController = segue.destinationViewController as! SSCourseCommentTableView
-            nextViewController.courseName = (dict["name"] as? String)!
+            nextViewController.courseName = (dict!["id"] as? String)!
+            nextViewController.navigationItem.title = dict!["name"] as? String
         }
     }
 }

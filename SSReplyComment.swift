@@ -20,13 +20,13 @@ class SSReplyComment: AnyObject{
     var RefedAuthorId: AnyObject = ""
     var refedAuthor: AnyObject = ""
     var refedContent: AnyObject = ""
-    var refId: AnyObject = 0
+    var refId: AnyObject = "0"
 
     var digg: AnyObject = 0
     var className: AnyObject = ""
     var time: AnyObject = 0
     var digged: AnyObject = false
-    var id: AnyObject = 0
+    var id: AnyObject = "0"
     
     func getAddLim() -> NSDictionary{
         let getNewDict: NSDictionary = {

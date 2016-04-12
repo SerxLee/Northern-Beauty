@@ -12,6 +12,8 @@
 import UIKit
 import Foundation
 import AFNetworking
+import MJRefresh
+import SVProgressHUD
 
 public let session = AFHTTPSessionManager()
 var cacheCourseData = NSMutableDictionary()
@@ -25,6 +27,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var segment: UISegmentedControl!
+    
     
     var urlString: String =  "http://msghub.eycia.me:4001/Score"
     var userName: String!
@@ -41,24 +44,38 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     override func viewDidLoad() {
         getDataWithAllCourse()
+        
         super.viewDidLoad()
+        
+        MainViewController.progressInit()
+        
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView.init()
+        
+        //grab the tableview up and get more comments
+//        self.tableView.mj_footer = MJRefreshAutoNormalFooter(refreshingTarget: self, refreshingAction: Selector("getMoreComment:"))
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
     }
 
-
+    var reloadWithSegement: Bool = false
     @IBAction func segmentChangeAction(sender: UISegmentedControl) {
-        courseDataSourse = []
-        allSemesters = []
+
         //FIXME: change the path of the data of course
         let title = self.segment.titleForSegmentAtIndex(self.segment.selectedSegmentIndex)
         getType(title!)
         if cacheCourseData[type] == nil || cacheSemesterNum[type] == nil || cacheSemester[type] == nil{
+            //init the lim property
+            courseDataSourse = []
+            allSemesters = []
+            
+            reloadWithSegement = true
+            tableView.reloadData()
+            
+            //
             connetURL()
             segment.enabled = false
         }else{
@@ -70,13 +87,18 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func connetURL(){
+        
+        SVProgressHUD.show()
+        
         let eyciaURL = "http://msghub.eycia.me:4001/Score?username=\(userName)&password=\(passWord)&type=\(type)"
-
+        
         session.POST(eyciaURL, parameters: nil, success: { (dataTask, response) in
             
 //            print(response)
             let error = response!["err"] as! Int
             if error == 0{
+                
+                
                 let lim_data = response!["data"] as! NSDictionary
                 allCourse = lim_data["info"] as! [NSDictionary]
                 self.semestersNum = allCourse.count
@@ -89,15 +111,24 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     
                     limm.addEntriesFromDictionary([dicType : lim])
                 }
+                
+                SVProgressHUD.dismiss()
+                
                 self.DataSourse = limm
                 cacheSemester.addEntriesFromDictionary([self.type : self.allSemesters])
                 cacheSemesterNum.addEntriesFromDictionary([self.type : self.semestersNum])
                 cacheCourseData.addEntriesFromDictionary([self.type : limm])
+                
+                self.reloadWithSegement = false
                 self.tableView.reloadData()
+                self.segment.enabled = true
+            }else{
+                SVProgressHUD.showErrorWithStatus("获取数据失败")
                 self.segment.enabled = true
             }
         })
         {  (dataTask, error) -> Void in
+            SVProgressHUD.showErrorWithStatus("获取数据失败")
             print(error.localizedDescription)
             self.segment.enabled = true
         }
@@ -137,7 +168,6 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
             
             limm.addEntriesFromDictionary([dicType : lim])
         }
-//        xuefen = fen
         DataSourse = limm
         cacheSemester.addEntriesFromDictionary([self.type : self.allSemesters])
         cacheSemesterNum.addEntriesFromDictionary([self.type : self.semestersNum])
@@ -154,11 +184,16 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     //MARK: - tableview delegate and datasourse
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if reloadWithSegement{
+            return 0
+        }
         return DataSourse[allSemesters[section]]!.count
-
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        if reloadWithSegement{
+            return 0
+        }
         return self.semestersNum
     }
     
@@ -169,6 +204,10 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier: String = "MainTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? MainViewControllerTableViewCell
+        
+        if reloadWithSegement{
+            return cell!
+        }
 
         let row = indexPath.row
         let indexOfSection = indexPath.section
@@ -184,12 +223,29 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        
         let row = indexPath.row
         let indexOfSection = indexPath.section
         var stringOfSection: String!
         stringOfSection = allSemesters[indexOfSection]
-
-        dict = cacheCourseData[type]![stringOfSection]!![row] as! NSDictionary
+        let limaa = cacheCourseData[type]!
+        dict = (limaa[stringOfSection]! as! NSArray)[row] as? NSDictionary
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        
+    }
+    
+    
+    static func progressInit(){
+        SVProgressHUD.setDefaultStyle(SVProgressHUDStyle.Dark)
+        SVProgressHUD.setBackgroundColor(UIColor(red: 0, green: 0, blue: 0, alpha: 1))
+        //        SVProgressHUD.setBackgroundColor(UIColor.lightGrayColor())
+        SVProgressHUD.setForegroundColor(UIColor(red: 1, green: 1, blue: 1, alpha: 1))
+        SVProgressHUD.setRingThickness(5.0)
+        SVProgressHUD.setFont(UIFont(name: "AmericanTypewriter", size: 12.0))
+        SVProgressHUD.setMinimumDismissTimeInterval(3.0)
+        
+        
     }
 
     /*

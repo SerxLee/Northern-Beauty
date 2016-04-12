@@ -17,8 +17,11 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
     
     //MARK: - ALL properties
     //MARK: -
+    var timeLast: Int = -1
+    var idLast: String = "0"
     
     var courseName: String = "testclass"
+    
     
     private var commentOperatingIndexPaths: NSIndexPath?
     private var likeOperatingIndexPaths: NSIndexPath?
@@ -58,6 +61,7 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
         commentInputField.autocorrectionType = UITextAutocorrectionType.No
         commentInputField.borderStyle = UITextBorderStyle.RoundedRect
         
+        
         return commentInputField
     }()
 
@@ -67,11 +71,44 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationItem.title = courseName
-        getDataFromEYCIA()
+        dataSourse = []
+//        self.navigationItem.title = courseName
         tableView.allowsSelection = false
-//        dataSourse = dictData["data"] as? [NSDictionary]
+        self.tableView.tableFooterView = UIView.init()
         tableView.addSubview(fakeCommentInputField)
+        getDataFromEYCIA()
+
+    }
+
+    func footerRefresh(){
+        
+        let nowDataSourseLast = dataSourse.last!
+        idLast = nowDataSourseLast["id"] as! String
+        timeLast = nowDataSourseLast["time"] as! Int
+        print("use the footer refresh")
+        let limURL =  "http://msghub.eycia.me:4001/Reply/course/\(courseName)/20/\(idLast)/\(timeLast)"
+        
+        var isError = 0
+        session.GET(limURL, parameters: nil, success: { (dataTask, response) in
+            
+            isError = response!["err"] as! Int
+            if isError == 1{
+            }else{
+                let limDataSourse = response!["data"] as! [NSDictionary]
+                dataSourse.insertContentsOf(limDataSourse, at: dataSourse.count)
+//                print(dataSourse)
+            }
+            
+            }) { (dataTask, error) in
+                isError = 1
+                print(error.localizedDescription)
+        }
+        
+        self.tableView.mj_footer.endRefreshing()
+        if isError != 1{
+            self.tableView.reloadData()
+        }
+    
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -90,14 +127,21 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
     
     
     func getDataFromEYCIA(){
+        let eyciaURL = "http://msghub.eycia.me:4001/Reply/course/\(courseName)/20/\(idLast)/\(timeLast)"
         
-        let eyciaURL = "http://msghub.eycia.me:4001/Reply/testclass/20/0/-1"
+        print(eyciaURL)
 
         session.GET(eyciaURL, parameters: nil, success: { (dataTask, response) in
             
+            
             dataSourse = response!["data"] as! [NSDictionary]
+            if dataSourse.isEmpty{
+                
+            }else{
+                self.tableView.mj_footer = MJRefreshAutoNormalFooter(refreshingTarget: self, refreshingAction: #selector(SSCourseCommentTableView.footerRefresh))
+                self.tableView.reloadData()
+            }
 //            print(dataSourse)
-            self.tableView.reloadData()
             
             }) { (dataTask, error) in
                 print(error)
@@ -175,44 +219,42 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
         print("点击了赞按钮")
         let likeOperatingIndexPath = self.likeOperatingIndexPaths
         if likeOperatingIndexPath != nil && dataSourse.count > likeOperatingIndexPath!.row {
-            let operateComment = dataSourse[likeOperatingIndexPath!.row]
+            let operateComment = dataSourse[likeOperatingIndexPath!.row] as! Dictionary<String, AnyObject>
             
                 let diggedID = operateComment["id"] as! String
-                let addDiggURL = "http://msghub.eycia.me:4001/Reply/testclass/\(diggedID)/digg/add"
+                let addDiggURL = "http://msghub.eycia.me:4001/Reply/\(diggedID)/digg/add"
             
-                var hasChange = false
-                
-                var limDic = operateComment as! [String: AnyObject]
-                
+                var limDic = operateComment
                 if limDic["digged"] as! Bool == false{
-                    hasChange = true
+                    
                     limDic["digged"] = true
                     limDic["digg"] = limDic["digg"] as! Int + 1
                     dataSourse[likeOperatingIndexPath!.row] = limDic
                     self.tableView.reloadRowsAtIndexPaths([likeOperatingIndexPath!], withRowAnimation: UITableViewRowAnimation.None)
-                    
-                }else{
-                    hasChange = true
-                    limDic["digged"] = false
-                    limDic["digg"] = limDic["digg"] as! Int - 1
-                    dataSourse[likeOperatingIndexPath!.row] = limDic
-                    self.tableView.reloadRowsAtIndexPaths([likeOperatingIndexPath!], withRowAnimation: UITableViewRowAnimation.None)
-                }
-            
-                if hasChange{
                     session.POST(addDiggURL, parameters: nil, success: { (dataTask, response) in
                         
                         let isError = response!["err"] as! Int
-                        
                         if isError == 0{
-                            print(response)
                             //FIXME: submit to the sever
-
                         }else{
                             let errorMessage = response!["reason"]
                             print(errorMessage)
+                            limDic["digged"] = false
+                            limDic["digg"] = limDic["digg"] as! Int - 1
+                            dataSourse[likeOperatingIndexPath!.row] = limDic
+                            self.tableView.reloadRowsAtIndexPaths([likeOperatingIndexPath!], withRowAnimation: UITableViewRowAnimation.None)
                         }
-                        }, failure: nil)
+                        }, failure: { (dataTask, error) in
+                            NSLog("find it is error")
+                            print(error.localizedDescription)
+                            
+                            limDic["digged"] = false
+                            limDic["digg"] = limDic["digg"] as! Int - 1
+                            dataSourse[likeOperatingIndexPath!.row] = limDic
+                            self.tableView.reloadRowsAtIndexPaths([likeOperatingIndexPath!], withRowAnimation: UITableViewRowAnimation.None)
+                            
+                    })
+
                 }
         }
     }
@@ -225,26 +267,61 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
     //MARK: UITextFieldViewDelegate
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         
-        
         if textField == realCommentInputField{
             commentFiledResignFirstResponder()
             let comment = textField.text
             let replyComment = SSReplyComment()
             let localDate = NSDate().timeIntervalSince1970
             var urlComment: String!
+            if comment == ""{
+                let alert = UIAlertController(title: nil, message: "请输入评论内容", preferredStyle: .Alert)
+                let okAction = UIAlertAction(title: "确定", style: .Default, handler: { (nil) in
+                    
+                    if self.fakeCommentInputField.becomeFirstResponder() {
+                        self.realCommentInputField.becomeFirstResponder()
+                    }
+                    
+                })
+                alert.addAction(okAction)
+                self.presentViewController(alert, animated: true, completion: nil)
+                return false
+            }
+            
             if isNewComment{
-                urlComment = "http://msghub.eycia.me:4001/testclass/\(comment!)"
-
+                
+                urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)"
+                
+                let parameters: Dictionary<String, String> = ["content": comment!]
+                
                 replyComment.content = comment!
                 replyComment.authorName = studenInfo["name"]!
                 replyComment.stuId = studenInfo["stu_id"]!
                 replyComment.time = localDate
                 //FIXME: submit reply the new Comment to server
                 
+
                 
+                session.POST(urlComment, parameters: parameters, success: { (dataTask, response) in
+//                    print(response)
+                    let errNum = response!["err"] as! Int
+                    if errNum == 1{
+                        let messageString = response!["reason"] as! String
+                        print(messageString)
+                    }else{
+                        replyComment.id = response!["data"] as! String
+                        let addLim = replyComment.getAddLim()
+                        dataSourse.insert(addLim, atIndex: 0)
+                        
+                        
+                        self.tableView.reloadData()
+                        self.tableView.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: true)
+                        textField.text = ""
+                    }
+                    }, failure: { (dataTask, error) in
+                        NSLog("find it is error")
+                        print(error.localizedDescription)
+                })
                 
-                let addLim = replyComment.getAddLim()
-                dataSourse.insert(addLim, atIndex: 0)
             }else{
                 if comment != nil && comment!.isEmpty == false {
                     let replyOperationIndex = commentOperatingIndexPaths
@@ -262,27 +339,36 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
                         replyComment.className = replyedComment["className"]!
                         replyComment.time = localDate
                         
-                        //FIXME: submit reply Comment to server
                         
+                        urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)/\(replyedComment["id"]!)/reply"
+                        let parameters: Dictionary<String, String> = ["content": comment!]
                         
-                        let addLim = replyComment.getAddLim()
-                        dataSourse.insert(addLim, atIndex: 0)
+                        session.POST(urlComment, parameters: parameters, success: { (dataTask, response) in
+//                            print(response)
+                            let errNum = response!["err"] as! Int
+                            if errNum == 1{
+                                let messageString = response!["reason"] as! String
+                                print(messageString)
+                                self.tableView.reloadData()
+                            }else{
+                                replyComment.id = response!["data"] as! String
+                                let addLim = replyComment.getAddLim()
+                                dataSourse.insert(addLim, atIndex: 0)
+                                
+                                self.tableView.reloadData()
+                                self.tableView.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: true)
+                                textField.text = ""
+                            }
+
+                            }, failure: { (dataTask, error) in
+                                NSLog("find it is error")
+                                print(error.localizedDescription)
+                        })
+
+                        
                     }
                 }
             }
-            
-            session.POST(urlComment, parameters: nil, success: { (dataTask, response) in
-                
-                print(response)
-                }, failure: { (dataTask, error) in
-                    print(error.localizedDescription)
-            })
-
-            tableView.reloadData()
-            tableView.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: true)
-            textField.text = ""
-            
-            
         }
         return true
     }
