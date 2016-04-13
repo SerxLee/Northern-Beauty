@@ -12,20 +12,35 @@ import SVProgressHUD
 
 class ViewController: UIViewController, UITextFieldDelegate{
 
+    //MARK: - all properties
+    //MARK: -
+    
     let checkURL = "http://msghub.eycia.me:4001/Score"
     
     @IBOutlet weak var userName: UITextField!
     @IBOutlet weak var passWord: UITextField!
+    @IBOutlet weak var loginButton: UIButton!
     
     var courseDataSourse: [NSDictionary] = []
     var studenInfoData: NSDictionary!
     
     var getDataOK: Bool = false
     
+    //MARK: - override fun
+    //MARK: -
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         userName.delegate = self
         passWord.delegate = self
+        
+        userName.returnKeyType = .Next
+        passWord.returnKeyType = .Go
+        userName.clearButtonMode=UITextFieldViewMode.WhileEditing
+        passWord.clearButtonMode=UITextFieldViewMode.WhileEditing
+        
+        loginButton.layer.cornerRadius = 5.0
+            
         ViewController.progressInit()
         ViewController.initAllPublicCache()
         // Do any additional setup after loading the view, typically from a nib.
@@ -36,9 +51,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
         // Dispose of any resources that can be recreated.
     }
 
-    @IBAction func LoginAction(sender: UIButton) {
-        checkLoginInformation()
-    }
+
     
     //MARK: Inti all the cache
     static func initAllPublicCache(){
@@ -47,13 +60,82 @@ class ViewController: UIViewController, UITextFieldDelegate{
         cacheSemesterNum.removeAllObjects()
     }
     
+    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        
+        if identifier == "goToMainView"{
+            let account = userName.text
+            let password = passWord.text
+            
+            if account == "" || password == "" || getDataOK == false{
+                //                var errorMessage:String?
+                //                if account == "" && password != ""{
+                //                    errorMessage = "请输入学号"
+                //                }else if account != "" && password == ""{
+                //                    errorMessage = "请输入密码"
+                //                }else{
+                //                    errorMessage = "请输入学号和密码"
+                //                }
+                //                let alert = UIAlertController(title: nil, message: errorMessage, preferredStyle: .Alert)
+                //                let okAction = UIAlertAction(title: "确定", style: .Default, handler: { (nil) in
+                //                    self.userName.isFirstResponder()
+                //                })
+                //                alert.addAction(okAction)
+                
+                //                if getDataOK == false && account != "" && password != ""{
+                //                    //FIXME: add the login info
+                //
+                //                }else{
+                //                    self.presentViewController(alert, animated: true, completion: nil)
+                //                }
+                return false
+            }
+        }
+        return true
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "goToMainView"{
+            
+            let tabBar = segue.destinationViewController as! UITabBarController
+            
+            let nextViewController = tabBar.viewControllers![0] as! MainViewController
+            nextViewController.userName = self.userName.text
+            nextViewController.passWord = self.passWord.text
+            allCourse = self.courseDataSourse
+            studenInfo = self.studenInfoData
+        }
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        
+        if textField == userName {
+            self.userName.resignFirstResponder()
+            self.passWord.becomeFirstResponder()
+        }else if textField ==  passWord{
+            self.passWord.resignFirstResponder()
+            checkLoginInformation()
+        }
+        
+        return true
+    }
+
+
+    
+    //MARK: - my fun
+    //MARK: -
+    
+    
+    @IBAction func LoginAction(sender: UIButton) {
+        checkLoginInformation()
+    }
+    
     func checkLoginInformation(){
 
         let account: String = userName.text!
         let password: String = passWord.text!
         let myParameters: Dictionary = ["username":account, "password": password, "type": "passing"]
         SVProgressHUD.show()
-
+        
         session.POST(checkURL, parameters: myParameters, success: {  (dataTask, operation) -> Void in
             
             let error = operation!["err"] as! Int
@@ -89,9 +171,6 @@ class ViewController: UIViewController, UITextFieldDelegate{
     
     static func progressInit(){
         SVProgressHUD.setDefaultStyle(SVProgressHUDStyle.Dark)
-        SVProgressHUD.setBackgroundColor(UIColor(red: 0, green: 0, blue: 0, alpha: 1))
-//        SVProgressHUD.setBackgroundColor(UIColor.lightGrayColor())
-        SVProgressHUD.setForegroundColor(UIColor(red: 1, green: 1, blue: 1, alpha: 1))
         SVProgressHUD.setRingThickness(5.0)
         SVProgressHUD.setFont(UIFont(name: "AmericanTypewriter", size: 12.0))
         SVProgressHUD.setMinimumDismissTimeInterval(3.0)
@@ -100,63 +179,6 @@ class ViewController: UIViewController, UITextFieldDelegate{
     }
     
     
-    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
-        
-        if identifier == "goToMainView"{
-            let account = userName.text
-            let password = passWord.text
-            
-            if account == "" || password == "" || getDataOK == false{
-                var errorMessage:String?
-                if account == "" && password != ""{
-                    errorMessage = "请输入学号"
-                }else if account != "" && password == ""{
-                    errorMessage = "请输入密码"
-                }else{
-                    errorMessage = "请输入学号和密码"
-                }
-                let alert = UIAlertController(title: nil, message: errorMessage, preferredStyle: .Alert)
-                let okAction = UIAlertAction(title: "确定", style: .Default, handler: { (nil) in
-                    self.userName.isFirstResponder()
-                })
-                alert.addAction(okAction)
-
-                if getDataOK == false && account != "" && password != ""{
-                    //FIXME: add the login info
-                    
-                }else{
-                    self.presentViewController(alert, animated: true, completion: nil)
-                }
-                return false
-            }
-        }
-        return true
-    }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "goToMainView"{
-            
-            let tabBar = segue.destinationViewController as! UITabBarController
-            
-            let nextViewController = tabBar.viewControllers![0] as! MainViewController
-            nextViewController.userName = self.userName.text
-            nextViewController.passWord = self.passWord.text
-            allCourse = self.courseDataSourse
-            studenInfo = self.studenInfoData
-        }
     }
-    
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
-        
-        if userName.isFirstResponder() {
-//            self.userName.resignFirstResponder()
-            self.passWord.isFirstResponder()
-        }else if passWord.isFirstResponder() {
-            self.passWord.resignFirstResponder()
-            checkLoginInformation()
-        }
-
-        return true
-    }
-}
 

@@ -25,6 +25,9 @@ var studenInfo: NSDictionary!
 
 class MainViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
+    //MARK: - all of the Properties
+    //MARK: -
+    
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var segment: UISegmentedControl!
     
@@ -40,7 +43,15 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var courseDataSourse : [Dictionary<String, String>] = []
     var threeName: NSMutableDictionary!
     var DataSourse : NSMutableDictionary!
+    
+    var reloadWithSegement: Bool = false
 
+    
+    var semestersNum: Int = 0
+    var allSemesters =  [String]()
+
+    //MARK: -  func override
+    //MARK: -
     
     override func viewDidLoad() {
         getDataWithAllCourse()
@@ -61,10 +72,71 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         super.viewWillAppear(animated)
     }
 
-    var reloadWithSegement: Bool = false
-    @IBAction func segmentChangeAction(sender: UISegmentedControl) {
 
-        //FIXME: change the path of the data of course
+    
+    //MARK: tableview delegate and datasourse
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if reloadWithSegement{
+            return 0
+        }
+        return DataSourse[allSemesters[section]]!.count
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        if reloadWithSegement{
+            return 0
+        }
+        return self.semestersNum
+    }
+    
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return allSemesters[section]
+        
+    }
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let identifier: String = "MainTableViewCell"
+        let cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? MainViewControllerTableViewCell
+        
+        if reloadWithSegement{
+            return cell!
+        }
+        
+        let row = indexPath.row
+        let indexOfSection = indexPath.section
+        var stringOfSection: String!
+        
+        stringOfSection = allSemesters[indexOfSection]
+        courseDataSourse = cacheCourseData[type]![stringOfSection]! as! [Dictionary<String, String>]
+        
+        cell!.CourseNum.text = courseDataSourse[row]["id"]! as String
+        cell!.CourseScore.text = courseDataSourse[row]["score"]! as String
+        cell!.CourseName.text = courseDataSourse[row]["name"]! as String
+        return cell!
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        
+        let row = indexPath.row
+        let indexOfSection = indexPath.section
+        var stringOfSection: String!
+        stringOfSection = allSemesters[indexOfSection]
+        let limaa = cacheCourseData[type]!
+        dict = (limaa[stringOfSection]! as! NSArray)[row] as? NSDictionary
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+
+    
+    //MARK: -  func of mine
+    //MARK: -
+    @IBAction func segmentChangeAction(sender: UISegmentedControl) {
+        
         let title = self.segment.titleForSegmentAtIndex(self.segment.selectedSegmentIndex)
         getType(title!)
         if cacheCourseData[type] == nil || cacheSemesterNum[type] == nil || cacheSemester[type] == nil{
@@ -85,6 +157,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
             self.tableView.reloadData()
         }
     }
+    
     
     func connetURL(){
         
@@ -123,7 +196,9 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 self.tableView.reloadData()
                 self.segment.enabled = true
             }else{
+                print(response)
                 SVProgressHUD.showErrorWithStatus("获取数据失败")
+                self.reloadWithSegement = false
                 self.segment.enabled = true
             }
         })
@@ -135,7 +210,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     }
     
-    //FIXME: get the information according segmentString
+    //MARK: get the information according segmentString
     private func getType(segmentString: String){
         if segmentString == "最近一学期成绩"{
             type = "semester"
@@ -145,9 +220,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
             type = "fail"
         }
     }
-    
-    var semestersNum: Int = 0
-    var allSemesters =  [String]()
+
     
     //before load the view
     func getDataWithAllCourse(){
@@ -174,66 +247,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cacheCourseData.addEntriesFromDictionary([self.type : limm])
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    
-    
-    
-    //MARK: - tableview delegate and datasourse
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if reloadWithSegement{
-            return 0
-        }
-        return DataSourse[allSemesters[section]]!.count
-    }
-    
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        if reloadWithSegement{
-            return 0
-        }
-        return self.semestersNum
-    }
-    
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-            return allSemesters[section]
 
-    }
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let identifier: String = "MainTableViewCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? MainViewControllerTableViewCell
-        
-        if reloadWithSegement{
-            return cell!
-        }
-
-        let row = indexPath.row
-        let indexOfSection = indexPath.section
-        var stringOfSection: String!
-        
-        stringOfSection = allSemesters[indexOfSection]
-        courseDataSourse = cacheCourseData[type]![stringOfSection]! as! [Dictionary<String, String>]
-
-        cell!.CourseNum.text = courseDataSourse[row]["id"]! as String
-        cell!.CourseScore.text = courseDataSourse[row]["score"]! as String
-        cell!.CourseName.text = courseDataSourse[row]["name"]! as String
-        return cell!
-    }
-    
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        
-        let row = indexPath.row
-        let indexOfSection = indexPath.section
-        var stringOfSection: String!
-        stringOfSection = allSemesters[indexOfSection]
-        let limaa = cacheCourseData[type]!
-        dict = (limaa[stringOfSection]! as! NSArray)[row] as? NSDictionary
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        
-    }
     
     
     static func progressInit(){

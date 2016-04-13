@@ -16,7 +16,6 @@ class SSCourseCell: UITableViewCell {
     //MARK: -
     
     var delegate: SSCourseCellDelegate?
-
     
     var showTopSeperator: Bool = false {
         didSet {

@@ -9,7 +9,9 @@
 import UIKit
 
 
-class userViewController: UITableViewController {
+class userViewController: UITableViewController{
+    
+    
     
     var xuefen: Float = 0
     var xuefenXuan: Float = 0
@@ -37,10 +39,28 @@ class userViewController: UITableViewController {
         
     }
     
+    @IBAction func lookOrChangeButton(sender: UIButton) {
+        
+        let actionSheet = UIAlertController(title: "更改头像", message: nil, preferredStyle: .ActionSheet)
+        
+        let cancelAction = UIAlertAction(title: "取消", style: .Cancel, handler: nil)
+        let lookBigPicture = UIAlertAction(title: "拍照", style: .Default) { (nil) in
+            
+            
+        }
+        let changePicture = UIAlertAction(title: "从相册获取", style: .Default) { (nil) in
+            
+        }
+        actionSheet.addAction(lookBigPicture)
+        actionSheet.addAction(changePicture)
+        actionSheet.addAction(cancelAction)
+        self.presentViewController(actionSheet, animated: true, completion: nil)
+        
+    }
     
     @IBAction func exit(sender: UIButton) {
         
-        let alertExit = UIAlertController(title: "注意", message: "注销登录？", preferredStyle: .Alert)
+        let alertExit = UIAlertController(title: nil, message: "确认注销登录？", preferredStyle: .Alert)
         let cancleAction = UIAlertAction(title: "取消", style: .Cancel) { (nil) in
             
             //取消退出
