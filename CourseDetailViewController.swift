@@ -49,4 +49,8 @@ class CourseDetailViewController: UIViewController {
             nextViewController.navigationItem.title = dict!["name"] as? String
         }
     }
+    @IBAction func commentButton(sender: AnyObject) {
+        
+        
+    }
 }

@@ -9,30 +9,60 @@
 import Foundation
 import UIKit
 
-class SSReplyComment: AnyObject{
-    
+class SSReplyComment{
     
     var authorName: AnyObject = ""
     var stuId:AnyObject = ""
     var content: AnyObject = ""
-
+    
     
     var RefedAuthorId: AnyObject = ""
     var refedAuthor: AnyObject = ""
     var refedContent: AnyObject = ""
     var refId: AnyObject = "0"
-
+    
     var digg: AnyObject = 0
     var className: AnyObject = ""
     var time: AnyObject = 0
     var digged: AnyObject = false
     var id: AnyObject = "0"
     
-    func getAddLim() -> NSDictionary{
-        let getNewDict: NSDictionary = {
-            let addLim = ["refedAuthor": refedAuthor, "content": content, "id": id, "time": time, "digged": digged, "authorName": authorName, "className": className, "refedContent": refedContent, "RefedAuthorId": RefedAuthorId, "digg": digg, "refId": refId, "stuId": stuId] as NSDictionary
-            return addLim
-        }()
-        return getNewDict
+    var getNewDict: NSDictionary!
+    
+    var errNumber = 0
+    
+    init(dict: NSDictionary?, comment: String, courseName: String, isNew: Bool){
+        
+        var urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)"
+        self.authorName = studenInfo["name"]!
+        self.stuId = studenInfo["stu_id"]!
+        self.content = comment
+        self.time = NSDate().timeIntervalSince1970
+        
+        if !isNew{
+            self.RefedAuthorId = dict!["id"]!
+            self.refedAuthor = dict!["authorName"]!
+            self.refedContent = dict!["content"]!
+            self.refId = dict!["id"]!
+            self.className = dict!["className"]!
+            urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)/\(refId)/reply"
+        }
+        
+        let parameters: Dictionary<String, String> = ["content": content as! String]
+        session.POST(urlComment, parameters: parameters, success: { (dataTask, response) in
+            let errNum = response!["err"] as! Int
+            self.errNumber = errNum
+            if errNum == 1{
+                let messageString = response!["reason"] as! String
+                print(messageString)
+            }else{
+                self.id = response!["data"] as! String
+            }
+            }, failure: { (dataTask, error) in
+                NSLog("find it is error")
+                print(error.localizedDescription)
+        })
+        
+        self.getNewDict = ["refedAuthor": refedAuthor, "content": content, "id": id, "time": time, "digged": digged, "authorName": authorName, "className": className, "refedContent": refedContent, "RefedAuthorId": RefedAuthorId, "digg": digg, "refId": refId, "stuId": stuId]
     }
 }

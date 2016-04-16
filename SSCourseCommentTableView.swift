@@ -111,9 +111,6 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
         if textField == realCommentInputField{
             commentFiledResignFirstResponder()
             let comment = textField.text
-            let replyComment = SSReplyComment()
-            let localDate = NSDate().timeIntervalSince1970
-            var urlComment: String!
             if comment == ""{
                 let alert = UIAlertController(title: nil, message: "请输入评论内容", preferredStyle: .Alert)
                 let okAction = UIAlertAction(title: "确定", style: .Default, handler: { (nil) in
@@ -121,91 +118,39 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
                     if self.fakeCommentInputField.becomeFirstResponder() {
                         self.realCommentInputField.becomeFirstResponder()
                     }
-                    
                 })
                 alert.addAction(okAction)
                 self.presentViewController(alert, animated: true, completion: nil)
                 return false
             }
             
+            
+            var limComment: SSReplyComment!
+            var errNum: Int = 0
+            
             if isNewComment{
-                
-                urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)"
-                
-                let parameters: Dictionary<String, String> = ["content": comment!]
-                
-                replyComment.content = comment!
-                replyComment.authorName = studenInfo["name"]!
-                replyComment.stuId = studenInfo["stu_id"]!
-                replyComment.time = localDate
-                
-                session.POST(urlComment, parameters: parameters, success: { (dataTask, response) in
-                    //                    print(response)
-                    let errNum = response!["err"] as! Int
-                    if errNum == 1{
-                        let messageString = response!["reason"] as! String
-                        print(messageString)
-                    }else{
-                        replyComment.id = response!["data"] as! String
-                        let addLim = replyComment.getAddLim()
-                        dataSourse.insert(addLim, atIndex: 0)
-                        
-                        
-                        self.tableView.reloadData()
-                        self.tableView.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: true)
-                        textField.text = ""
-                    }
-                    }, failure: { (dataTask, error) in
-                        NSLog("find it is error")
-                        print(error.localizedDescription)
-                })
-                
+                limComment = SSReplyComment(dict: nil, comment: comment!, courseName: self.courseName, isNew: isNewComment)
+                errNum = limComment.errNumber
             }else{
-                if comment != nil && comment!.isEmpty == false {
-                    let replyOperationIndex = commentOperatingIndexPaths
-                    if replyOperationIndex != nil && dataSourse.count > replyOperationIndex!.row{
-                        let replyedComment = dataSourse[(replyOperationIndex?.row)!]
-                        
-                        replyComment.content = comment!
-                        replyComment.authorName = studenInfo["name"]!
-                        replyComment.stuId = studenInfo["stu_id"]!
-                        
-                        replyComment.refId = replyedComment["id"]!
-                        replyComment.refedAuthor = replyedComment["authorName"]!
-                        replyComment.refedContent = replyedComment["content"]!
-                        
-                        replyComment.className = replyedComment["className"]!
-                        replyComment.time = localDate
-                        
-                        
-                        urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)/\(replyedComment["id"]!)/reply"
-                        let parameters: Dictionary<String, String> = ["content": comment!]
-                        
-                        session.POST(urlComment, parameters: parameters, success: { (dataTask, response) in
-                            let errNum = response!["err"] as! Int
-                            if errNum == 1{
-                                let messageString = response!["reason"] as! String
-                                print(messageString)
-                                self.tableView.reloadData()
-                            }else{
-                                replyComment.id = response!["data"] as! String
-                                let addLim = replyComment.getAddLim()
-                                dataSourse.insert(addLim, atIndex: 0)
-                                
-                                self.tableView.reloadData()
-                                self.tableView.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: true)
-                                textField.text = ""
-                            }
-                            
-                            }, failure: { (dataTask, error) in
-                                NSLog("find it is error")
-                                print(error.localizedDescription)
-                        })
-                        
-                        
-                    }
+                let replyOperationIndex = commentOperatingIndexPaths
+                if replyOperationIndex != nil && dataSourse.count > replyOperationIndex!.row{
+                    let replyedComment = dataSourse[(replyOperationIndex?.row)!]
+                    limComment = SSReplyComment(dict: replyedComment, comment: comment!, courseName: self.courseName, isNew: isNewComment)
+                    errNum = limComment.errNumber
                 }
             }
+
+            if errNum == 0{
+                let addLim = limComment.getNewDict
+                dataSourse.insert(addLim, atIndex: 0)
+                
+                self.tableView.reloadData()
+                self.tableView.scrollRectToVisible(CGRectMake(0, 0, 1, 1), animated: true)
+                textField.text = ""
+            }else{
+                //none
+            }
+
         }
         return true
     }

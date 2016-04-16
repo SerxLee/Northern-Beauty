@@ -67,26 +67,6 @@ class ViewController: UIViewController, UITextFieldDelegate{
             let password = passWord.text
             
             if account == "" || password == "" || getDataOK == false{
-                //                var errorMessage:String?
-                //                if account == "" && password != ""{
-                //                    errorMessage = "请输入学号"
-                //                }else if account != "" && password == ""{
-                //                    errorMessage = "请输入密码"
-                //                }else{
-                //                    errorMessage = "请输入学号和密码"
-                //                }
-                //                let alert = UIAlertController(title: nil, message: errorMessage, preferredStyle: .Alert)
-                //                let okAction = UIAlertAction(title: "确定", style: .Default, handler: { (nil) in
-                //                    self.userName.isFirstResponder()
-                //                })
-                //                alert.addAction(okAction)
-                
-                //                if getDataOK == false && account != "" && password != ""{
-                //                    //FIXME: add the login info
-                //
-                //                }else{
-                //                    self.presentViewController(alert, animated: true, completion: nil)
-                //                }
                 return false
             }
         }
@@ -118,8 +98,6 @@ class ViewController: UIViewController, UITextFieldDelegate{
         
         return true
     }
-
-
     
     //MARK: - my fun
     //MARK: -
@@ -142,7 +120,7 @@ class ViewController: UIViewController, UITextFieldDelegate{
             if error == 0{
 //                print(operation)
                 self.getDataOK = true
-                self.shouldPerformSegueWithIdentifier("goToMainView", sender: nil)
+//                self.shouldPerformSegueWithIdentifier("goToMainView", sender: nil)
 //                print(operation!["item"])
                 
                 let lim_data = operation!["data"] as! NSDictionary
@@ -177,8 +155,5 @@ class ViewController: UIViewController, UITextFieldDelegate{
 
 
     }
-    
-    
-    
-    }
+}
 

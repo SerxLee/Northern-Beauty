@@ -104,7 +104,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="222" y="1864"/>
+            <point key="canvasLocation" x="168" y="1747"/>
         </scene>
         <!--Main View Controller-->
         <scene sceneID="h1q-fl-j1t">
@@ -868,11 +868,37 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="le6-1G-GxL">
+                                <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ehN-aE-nA8">
+                                        <rect key="frame" x="232" y="8" width="137" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="137" id="pXy-MT-Fit"/>
+                                        </constraints>
+                                        <state key="normal" title="点我，说点什么">
+                                            <color key="titleColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="commentButton:" destination="lHr-8k-2eC" eventType="touchUpInside" id="1Wr-sb-JmT"/>
+                                            <segue destination="T3t-1Y-xoR" kind="push" identifier="ToCommentController" id="zj2-I7-UaQ"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="ehN-aE-nA8" secondAttribute="bottom" constant="6" id="FD2-5B-d8B"/>
+                                    <constraint firstAttribute="height" constant="44" id="gaQ-F3-1SK"/>
+                                    <constraint firstItem="ehN-aE-nA8" firstAttribute="top" secondItem="le6-1G-GxL" secondAttribute="top" constant="8" id="mlt-DQ-eY0"/>
+                                    <constraint firstItem="ehN-aE-nA8" firstAttribute="centerX" secondItem="le6-1G-GxL" secondAttribute="centerX" id="w8V-fd-E1t"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="78u-1a-q9U" firstAttribute="leading" secondItem="6BG-M7-xnM" secondAttribute="leadingMargin" id="04v-Bt-Sos"/>
                             <constraint firstItem="iEd-O0-chE" firstAttribute="top" secondItem="m4R-Ch-D8X" secondAttribute="bottom" constant="8" id="222-zb-EQm"/>
+                            <constraint firstItem="le6-1G-GxL" firstAttribute="leading" secondItem="6BG-M7-xnM" secondAttribute="leadingMargin" constant="-20" id="3Wv-fX-mvB"/>
                             <constraint firstItem="jBq-F3-Fcs" firstAttribute="top" secondItem="78u-1a-q9U" secondAttribute="bottom" constant="8" id="6FR-6t-5dC"/>
                             <constraint firstItem="78u-1a-q9U" firstAttribute="top" secondItem="hAX-d5-gal" secondAttribute="bottom" constant="8" id="6w5-Tg-fZx"/>
                             <constraint firstAttribute="trailingMargin" secondItem="cW7-JK-D4U" secondAttribute="trailing" constant="20" id="8g1-S7-oW5"/>
@@ -884,6 +910,7 @@
                             <constraint firstAttribute="trailingMargin" secondItem="Rtd-j7-xgG" secondAttribute="trailing" constant="20" id="Eew-sl-AFW"/>
                             <constraint firstAttribute="trailingMargin" secondItem="4Kl-aY-nKF" secondAttribute="trailing" constant="20" id="Ehp-SV-Rlk"/>
                             <constraint firstItem="tSm-PG-JlW" firstAttribute="leading" secondItem="j0e-vj-xM3" secondAttribute="trailing" constant="6" id="Fnp-0H-c0x"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="le6-1G-GxL" secondAttribute="trailing" constant="-20" id="GrZ-Kv-cbj"/>
                             <constraint firstItem="4Kl-aY-nKF" firstAttribute="leading" secondItem="78u-1a-q9U" secondAttribute="trailing" constant="6" id="Hwu-C7-LPH"/>
                             <constraint firstAttribute="trailingMargin" secondItem="UJ7-xc-aZJ" secondAttribute="trailing" constant="20" id="Jud-BJ-fdc"/>
                             <constraint firstAttribute="trailingMargin" secondItem="tSm-PG-JlW" secondAttribute="trailing" constant="20" id="KgK-w5-icf"/>
@@ -901,17 +928,13 @@
                             <constraint firstItem="UJ7-xc-aZJ" firstAttribute="top" secondItem="Hn7-R4-bY3" secondAttribute="bottom" constant="8" id="oka-qw-W5V"/>
                             <constraint firstItem="cW7-JK-D4U" firstAttribute="leading" secondItem="iEd-O0-chE" secondAttribute="trailing" constant="6" id="owg-ZF-0vU"/>
                             <constraint firstItem="tSm-PG-JlW" firstAttribute="top" secondItem="1C4-m7-PLh" secondAttribute="bottom" constant="8" id="qJa-Gf-Cxw"/>
+                            <constraint firstItem="dLj-ro-3ki" firstAttribute="top" secondItem="le6-1G-GxL" secondAttribute="bottom" id="ynZ-Kj-E8N"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="详细信息" id="jWE-4n-gZ4">
                         <barButtonItem key="leftBarButtonItem" title="返回" id="LIF-q1-qOh">
                             <connections>
                                 <action selector="backAction:" destination="lHr-8k-2eC" id="WBi-Ik-lrd"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" image="News_Navigation_Comment_Highlight-1" id="vJx-b4-WwU">
-                            <connections>
-                                <segue destination="T3t-1Y-xoR" kind="push" identifier="ToCommentController" id="EOH-dC-aSn"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -951,10 +974,9 @@
     <resources>
         <image name="AlbumOperateMore" width="25" height="25"/>
         <image name="CircleDefaultAvatar" width="62" height="62"/>
-        <image name="News_Navigation_Comment_Highlight-1" width="64" height="43"/>
         <image name="blackHeart" width="120" height="120"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="CgO-kd-pgB"/>
+        <segue reference="zj2-I7-UaQ"/>
     </inferredMetricsTieBreakers>
 </document>
