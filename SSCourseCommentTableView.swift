@@ -186,7 +186,6 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
                 let limDataSourse = response!["data"] as! [NSDictionary]
                 dataSourse.insertContentsOf(limDataSourse, at: dataSourse.count)
             }
-            
         }) { (dataTask, error) in
             isError = 1
             print(error.localizedDescription)
