@@ -15,7 +15,6 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     //MARK: - all properties
     //MARK: -
     let recordData = RecordData()
-
     
     @IBOutlet weak var titleTopBoundHeight: NSLayoutConstraint!
     @IBOutlet weak var pswTitleTpoUserName: NSLayoutConstraint!
@@ -38,6 +37,8 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     
     var showList: Bool = false
     
+    var tapGesture = UITapGestureRecognizer()
+    
     //MARK: - override fun
     //MARK: -
     
@@ -47,18 +48,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
         loadUI()
         getRecordData()
         
-        userName.delegate = self
-        passWord.delegate = self
-        
-        userName.returnKeyType = .Next
-        passWord.returnKeyType = .Go
-        userName.clearButtonMode=UITextFieldViewMode.WhileEditing
-        passWord.clearButtonMode=UITextFieldViewMode.WhileEditing
-        
-        loginButton.layer.cornerRadius = 5.0
-            
-        ViewController.progressInit()
-        ViewController.initAllPublicCache()
+
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -107,19 +97,42 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
         if textField == userName {
             self.userName.resignFirstResponder()
             self.passWord.becomeFirstResponder()
+            
+            showList = false
+            pswTitleTpoUserName.constant = 8.0
+            self.tableView.hidden = !showList
         }else if textField ==  passWord{
-            self.passWord.resignFirstResponder()
+            
+            UIView.animateWithDuration(1.0, animations: { 
+                self.titleTopBoundHeight.constant = noSlideLengh
+                self.passWord.resignFirstResponder()
+            })
+            
             checkLoginInformation()
+            
         }
         
         return true
     }
     
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        
+        UIView.animateWithDuration(1.0) {
+            self.titleTopBoundHeight.constant = slidLenght
+
+        }
+        return true
+    }
+    
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 25.0
+    }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
-        let cell = tableView.cellForRowAtIndexPath(indexPath)
-        self.userName.text = cell?.textLabel?.text
+        let cell = tableView.cellForRowAtIndexPath(indexPath) as! DataTableViewCell
+        self.userName.text = cell.UserName.text!
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         showList = false
@@ -135,9 +148,9 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         let identifier = "myCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! DataTableViewCell
         
-        cell.textLabel?.text = resultData[indexPath.row]
+        cell.UserName.text = resultData[indexPath.row]
 //        cell.textLabel?.font.fontWithSize(11.0)
         print(resultData[indexPath.row])
         return cell
@@ -159,7 +172,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
         }else{
             let myMatch = UserNameMatch(array: dataSource, string: currentStr)
             resultData = myMatch.sl_matchlist()
-            
+            print(resultData)
             if resultData.count > 0{
                 showList = true
                 if resultData.count <= 5{
@@ -168,10 +181,13 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
                     
                 }else{
                     tableViewHeight.constant = 120.0
+                    pswTitleTpoUserName.constant = 8.0 + tableViewHeight.constant
                 }
                 
             }else{
                 showList = false
+                self.tableView.hidden = !showList
+                pswTitleTpoUserName.constant = 8.0
             }
         }
         if showList{
@@ -188,7 +204,34 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
         dataSource = recordData.toReadArray
     }
     
+    func didEndEditing(textFile: UITextField){
+        showList = false
+        self.tableView.hidden = !showList
+        pswTitleTpoUserName.constant = 8.0
+    }
+    
+    func backToView(gestrue: UITapGestureRecognizer){
+        
+        if self.userName.isFirstResponder(){
+            self.userName.resignFirstResponder()
+            self.showList = false
+            self.pswTitleTpoUserName.constant = 8.0
+            self.titleTopBoundHeight.constant = noSlideLengh
+        }
+        if self.passWord.isFirstResponder(){
+            self.passWord.resignFirstResponder()
+            self.showList = false
+            self.pswTitleTpoUserName.constant = 8.0
+            self.titleTopBoundHeight.constant = noSlideLengh
+        }
+        
+
+    }
+    
     func loadUI(){
+        
+        tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewController.backToView(_:)))
+        self.view.addGestureRecognizer(tapGesture)
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
@@ -196,6 +239,20 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
         self.pswTitleTpoUserName.constant = 8.0
         
         self.userName.addTarget(self, action: #selector(ViewController.didChange(_:)), forControlEvents: .EditingChanged)
+        self.userName.addTarget(self, action: #selector(ViewController.didEndEditing(_:)), forControlEvents: .EditingDidEnd)
+        
+        userName.delegate = self
+        passWord.delegate = self
+        
+        userName.returnKeyType = .Next
+        passWord.returnKeyType = .Go
+        userName.clearButtonMode=UITextFieldViewMode.WhileEditing
+        passWord.clearButtonMode=UITextFieldViewMode.WhileEditing
+        
+        loginButton.layer.cornerRadius = 5.0
+        
+        ViewController.progressInit()
+        ViewController.initAllPublicCache()
     }
     
     @IBAction func LoginAction(sender: UIButton) {
@@ -214,7 +271,6 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
             let error = operation!["err"] as! Int
             if error == 0{
                 NSLog("bb")
-                print(self.dataSource)
                 //TODO: add username to data
                 //FIXME: put it to asyn
                 if self.dataSource.count == 0{
@@ -225,7 +281,6 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
                 }else{
                     var hasSave = false
                     for str in self.dataSource{
-                        print(str)
                         print(account)
                         if account == str{
                             hasSave = true
@@ -237,9 +292,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
                         self.recordData.toWriteArray = limMutableArray
                         self.recordData.dataWrite()
                     }
-
                 }
-                
                 
                 self.getDataOK = true
                 let lim_data = operation!["data"] as! NSDictionary
@@ -273,5 +326,6 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     }
 }
 
-let slidLenght: CGFloat = 100.0
+let slidLenght: CGFloat = 50.0
+let noSlideLengh: CGFloat = 110.0
 let tableViewCellHeight: CGFloat = 25.0

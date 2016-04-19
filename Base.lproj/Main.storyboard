@@ -80,13 +80,42 @@
                                     <constraint firstAttribute="height" constant="120" id="msQ-xA-KnJ"/>
                                 </constraints>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="myCell" rowHeight="25" id="Ihd-BU-GUS">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="myCell" rowHeight="25" id="Ihd-BU-GUS" customClass="DataTableViewCell" customModule="Northern_Beauty" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="120" height="25"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Ihd-BU-GUS" id="2g4-Pf-sXk">
                                             <rect key="frame" x="0.0" y="0.0" width="120" height="24.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9pu-QV-Eiw">
+                                                    <rect key="frame" x="8" y="-1" width="104" height="25"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="UserName" destination="9pu-QV-Eiw" id="6WK-bl-JRB"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="lastCell" rowHeight="30" id="Ped-IP-4Lx" customClass="LastTableViewCell" customModule="Northern_Beauty" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="53" width="120" height="30"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Ped-IP-4Lx" id="rFq-t8-LGI">
+                                            <rect key="frame" x="0.0" y="0.0" width="120" height="29.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f7P-ic-KHO">
+                                                    <rect key="frame" x="8" y="0.0" width="104" height="29.5"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                    <state key="normal" title="清理缓存......"/>
+                                                </button>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="clearButton" destination="f7P-ic-KHO" id="oKE-bO-hmt"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
