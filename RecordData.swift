@@ -11,9 +11,18 @@ import Foundation
 
 class RecordData: NSObject{
     
+    /*
+        toWriteArray: befroe change the record, you should put data to 
+     
+        toReadArray:  the data read from .plist,
+                        get data via this property
+    */
     var toWriteArray: NSMutableArray!
     var toReadArray: [String] = []
     
+    /*
+        write the data to the .plist
+    */
     func dataWrite(){
         
         let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true) as NSArray
@@ -26,6 +35,7 @@ class RecordData: NSObject{
         let resultArray = NSArray(contentsOfFile: path)
         print("Saved userNameData.plist file is --> \(resultArray?.description)")
     }
+    
     
     func dataRead(){
         
@@ -52,15 +62,17 @@ class RecordData: NSObject{
             }
         }else{
             print("userName.plist already exits at path.")
+            
+            //TODO: clean all record
+
+            
             // use this to delete file from documents directory
             //fileManager.removeItemAtPath(path, error: nil)
+            
         }
-        
         if let resultArray = NSArray(contentsOfFile: path) as? [String]{
             print("Loaded userNameData.plist file is --> \(resultArray.description)")
-            
             self.toReadArray = resultArray
         }
-        
     }
 }

@@ -20,7 +20,6 @@ class  UserNameMatch: NSObject {
     }
     
     func sl_matchlist() -> [String]{
-        
         var resultArray: [String] = []
         for matched in matchedArray{
             
@@ -37,9 +36,11 @@ class  UserNameMatch: NSObject {
     //return true or false, indicate two string is equel and not equel
     
     /*
-     从头全匹配
+        match two string start from the position of str1's header to the posistion of str1's end
+     
      */
     func userMatch(str1: String , str2: String) -> Bool{
+        
         let lim = str1.endIndex
         let limStr2 = str2.substringToIndex(lim)
         if str1 == limStr2{

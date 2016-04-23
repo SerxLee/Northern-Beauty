@@ -63,7 +63,6 @@ class SSCourseCell: UITableViewCell {
         commentTextView.selectable = false
         commentTextView.userInteractionEnabled = false
         
-//        lastCommentTextView.backgroundColor = UIColor.lightGrayColor()
         lastCommentTextView.scrollEnabled = false
         lastCommentTextView.showsVerticalScrollIndicator = false
         lastCommentTextView.showsHorizontalScrollIndicator = false
@@ -85,6 +84,9 @@ class SSCourseCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
+    /*
+        work out cell height with the cellWidth
+    */
     static func cellHeightWithData(data: AnyObject?, cellWidth: CGFloat) -> CGFloat{
         
         var cellHeight: CGFloat = 0

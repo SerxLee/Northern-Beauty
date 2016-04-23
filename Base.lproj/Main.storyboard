@@ -29,7 +29,7 @@
                                 <nil key="highlightedColor"/>
                                 <size key="shadowOffset" width="0.0" height="0.0"/>
                             </label>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="2013025016" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="A3Y-ym-xRE">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="请输入学号" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="A3Y-ym-xRE">
                                 <rect key="frame" x="225" y="197" width="150" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="150" id="QrE-Se-Sxi"/>
@@ -50,10 +50,10 @@
                                 </state>
                                 <connections>
                                     <action selector="LoginAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QhK-fp-Vnk"/>
-                                    <segue destination="5D7-YA-sMJ" kind="modal" identifier="goToMainView" id="Aam-We-DqC"/>
+                                    <segue destination="5D7-YA-sMJ" kind="presentation" identifier="goToMainView" id="Aam-We-DqC"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="1" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="2NN-te-QI8">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="请输入密码" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="2NN-te-QI8">
                                 <rect key="frame" x="225" y="384" width="150" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="150" id="CId-3P-iUH"/>
@@ -244,7 +244,7 @@
                                             <outlet property="CourseName" destination="vDp-vN-RHA" id="Erb-nu-Izs"/>
                                             <outlet property="CourseNum" destination="Kzi-sb-wHs" id="P1n-SF-pOa"/>
                                             <outlet property="CourseScore" destination="CEj-c1-8vf" id="6WY-c5-JFH"/>
-                                            <segue destination="MUX-y7-m7U" kind="modal" id="zhA-Wc-tGc"/>
+                                            <segue destination="MUX-y7-m7U" kind="presentation" identifier="goToDetail" id="zhA-Wc-tGc"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -489,7 +489,7 @@
                                                     <state key="normal" title="注销"/>
                                                     <connections>
                                                         <action selector="exit:" destination="6fa-QN-Y2M" eventType="touchUpInside" id="liq-bM-oCW"/>
-                                                        <segue destination="BYZ-38-t0r" kind="modal" identifier="exitSegue" id="JSd-Yb-9Fu"/>
+                                                        <segue destination="BYZ-38-t0r" kind="presentation" identifier="exitSegue" id="JSd-Yb-9Fu"/>
                                                     </connections>
                                                 </button>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JMB-1u-eda">
@@ -937,7 +937,7 @@
                                         </state>
                                         <connections>
                                             <action selector="commentButton:" destination="lHr-8k-2eC" eventType="touchUpInside" id="1Wr-sb-JmT"/>
-                                            <segue destination="T3t-1Y-xoR" kind="push" identifier="ToCommentController" id="zj2-I7-UaQ"/>
+                                            <segue destination="T3t-1Y-xoR" kind="show" identifier="ToCommentController" id="zj2-I7-UaQ"/>
                                         </connections>
                                     </button>
                                 </subviews>

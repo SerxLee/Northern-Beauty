@@ -10,6 +10,13 @@ import UIKit
 
 class LastTableViewCell: UITableViewCell {
 
+//    let delegate = lastCellDelegate()
+    
     @IBOutlet weak var clearButton: UIButton!
     
+    
+}
+
+protocol lastCellDelegate {
+    func commentCell(commentCell: SSCourseCell, didClickReplyButton: UIButton)
 }

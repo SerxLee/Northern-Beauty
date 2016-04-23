@@ -19,6 +19,5 @@ public class limTest{
         for inde in datasource{
             digged.append(inde["digged"] as! Bool)
         }
-//        print(digged)
     }
 }

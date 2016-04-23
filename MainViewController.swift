@@ -25,9 +25,12 @@ var studenInfo: NSDictionary!
 
 class MainViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    //MARK: - all of the Properties
+
+    //MARK: - ------All Properties------
     //MARK: -
-    
+
+
+
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var segment: UISegmentedControl!
     
@@ -39,37 +42,39 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var selectedTitle: String!
     
     var sectionTitle: String!
-
+    
+    //will be used in tabelView delegate and datasource
     var courseDataSourse : [Dictionary<String, String>] = []
-    var threeName: NSMutableDictionary!
+    
     var DataSourse : NSMutableDictionary!
     
     var reloadWithSegement: Bool = false
+    
+    //the number of semester
+    var semestersNum: Int = 0
+    
+    //save the strings of all semesters' titles
+    var allSemesters =  [String]()
+    
+    
+
+
+    //MARK: - ------Apple Inc.Func------
+    //MARK: -
+    
+    
 
     
-    var semestersNum: Int = 0
-    var allSemesters =  [String]()
-
-    //MARK: -  func override
-    //MARK: -
     
     override func viewDidLoad() {
         getDataWithAllCourse()
-        
         super.viewDidLoad()
         
         MainViewController.progressInit()
-        
         self.tableView.delegate = self
         self.tableView.dataSource = self
-        self.tableView.tableFooterView = UIView.init()
         
-        //grab the tableview up and get more comments
-//        self.tableView.mj_footer = MJRefreshAutoNormalFooter(refreshingTarget: self, refreshingAction: Selector("getMoreComment:"))
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
+        self.tableView.tableFooterView = UIView.init()
     }
 
 
@@ -93,6 +98,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return allSemesters[section]
         
     }
+    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier: String = "MainTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? MainViewControllerTableViewCell
@@ -115,39 +121,57 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        
         let row = indexPath.row
         let indexOfSection = indexPath.section
         var stringOfSection: String!
         stringOfSection = allSemesters[indexOfSection]
         let limaa = cacheCourseData[type]!
         dict = (limaa[stringOfSection]! as! NSArray)[row] as? NSDictionary
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
+        //deSelected the cell while it is the didSelected statue
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
+
     
-    //MARK: -  func of mine
+    
+    //MARK: - ------Individual Func------
     //MARK: -
+
+    
+    
+    /*
+        1. did change the selected item in the segment,
+            tigger the 'connetURL' the get referent data
+    */
     @IBAction func segmentChangeAction(sender: UISegmentedControl) {
         
         let title = self.segment.titleForSegmentAtIndex(self.segment.selectedSegmentIndex)
         getType(title!)
+        
+        /*
+            1. inspect 'cacheCourseData', 'cacheSemesterNum', 'cacheSemester' of current's title
+         
+                .. 1. if values of the title did not search before, the value will be nil
+                        and tigger the then 'connetURL' method to get the data from 
+
+                .. 2. else the value of the title is not nil, indicate that you have search before
+                        and you can read the data referent current title directly.
+         
+        */
         if cacheCourseData[type] == nil || cacheSemesterNum[type] == nil || cacheSemester[type] == nil{
             //init the lim property
             courseDataSourse = []
             allSemesters = []
-            
             reloadWithSegement = true
+            // clean the tableview of current's title
             tableView.reloadData()
-            
-            //
+            // get data via that method
             connetURL()
             segment.enabled = false
         }else{
@@ -159,32 +183,41 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     
+    /*
+        1. the method of get data from individual sever referent to current's segementTitle "http://msghub.eycia.me:4001/Score?username=\(userName)&password=\(passWord)&type=\(type)"
+            .. 1. userName: the name of the sudent's number
+            .. 2. passWord: the numbet match the userName
+            .. 3. type:     the title get from the 'segmentChangeAction'
+    */
     func connetURL(){
-        
         SVProgressHUD.show()
         
         let eyciaURL = "http://msghub.eycia.me:4001/Score?username=\(userName)&password=\(passWord)&type=\(type)"
         
         session.POST(eyciaURL, parameters: nil, success: { (dataTask, response) in
             
-//            print(response)
             let error = response!["err"] as! Int
             if error == 0{
-                
                 
                 let lim_data = response!["data"] as! NSDictionary
                 allCourse = lim_data["info"] as! [NSDictionary]
                 self.semestersNum = allCourse.count
                 
+                /*
+                    the lim property seva the response data
+                        1.dicType: the title of semester or 'notPass', 'current semester'
+                */
                 let limm = NSMutableDictionary()
                 for dic in allCourse{
+                    
                     let dicType = dic["block_name"] as! String
+                    
+                    //put all semester's title in 'allSemesters' array
                     self.allSemesters.append(dicType)
                     let lim = dic["courses"] as! [NSDictionary]
                     
                     limm.addEntriesFromDictionary([dicType : lim])
                 }
-                
                 SVProgressHUD.dismiss()
                 
                 self.DataSourse = limm
@@ -195,14 +228,18 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 self.reloadWithSegement = false
                 self.tableView.reloadData()
                 self.segment.enabled = true
+                
             }else{
-                print(response)
+                //the data get back is error
                 SVProgressHUD.showErrorWithStatus("获取数据失败")
+    
                 self.reloadWithSegement = false
                 self.segment.enabled = true
             }
         })
         {  (dataTask, error) -> Void in
+            
+            //while errro thlie connect to serer
             SVProgressHUD.showErrorWithStatus("获取数据失败")
             print(error.localizedDescription)
             self.segment.enabled = true
@@ -210,7 +247,9 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     }
     
-    //MARK: get the information according segmentString
+    /*
+     get the the didSelectment's type referent to the segment's title
+     */
     private func getType(segmentString: String){
         if segmentString == "最近一学期成绩"{
             type = "semester"
@@ -221,24 +260,19 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
     }
 
-    
-    //before load the view
+    /*
+        1. handle the first data get from last view ,
+            before load the view
+    */
     func getDataWithAllCourse(){
-//        var fen: Int = 0
+        
         self.semestersNum = allCourse.count
         let limm = NSMutableDictionary()
+        
         for dic in allCourse{
             let dicType = dic["block_name"] as! String
             self.allSemesters.append(dicType)
             let lim = dic["courses"] as! [NSDictionary]
-//            
-//            for course in lim{
-//                let aa = course["score"] as! Int
-//                if aa >= 60{
-//                    fen = fen + (course["credit"] as! Int)
-//                }
-//            }
-            
             limm.addEntriesFromDictionary([dicType : lim])
         }
         DataSourse = limm
@@ -247,13 +281,9 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cacheCourseData.addEntriesFromDictionary([self.type : limm])
     }
     
-
-    
-    
     static func progressInit(){
         SVProgressHUD.setDefaultStyle(SVProgressHUDStyle.Dark)
         SVProgressHUD.setBackgroundColor(UIColor(red: 0, green: 0, blue: 0, alpha: 1))
-        //        SVProgressHUD.setBackgroundColor(UIColor.lightGrayColor())
         SVProgressHUD.setForegroundColor(UIColor(red: 1, green: 1, blue: 1, alpha: 1))
         SVProgressHUD.setRingThickness(5.0)
         SVProgressHUD.setFont(UIFont(name: "AmericanTypewriter", size: 12.0))

@@ -10,9 +10,12 @@ import UIKit
 
 
 class userViewController: UITableViewController{
+   
     
-    
-    
+    //MARK: - ------All Properties------
+    //MARK: -
+
+
     var xuefen: Float = 0
     var xuefenXuan: Float = 0
     var xuefenMust: Float = 0
@@ -29,6 +32,14 @@ class userViewController: UITableViewController{
     @IBOutlet weak var sumOfChoose: UILabel!
     @IBOutlet weak var sumOfNet: UILabel!
     
+
+
+
+    //MARK: - ------Apple Inc.Func------
+    //MARK: -
+
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.scrollEnabled = false
@@ -39,6 +50,33 @@ class userViewController: UITableViewController{
         
     }
     
+    
+    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        
+        if identifier == "exitSegue"{
+            if isExit == false{
+                return false
+            }
+        }
+        return true
+    }
+    
+    override func tableView(tableView: UITableView, estimatedHeightForFooterInSection section: Int) -> CGFloat {
+        if section == 2{
+            return 0
+        }
+        return 40.0
+    }
+
+    
+    
+    
+    //MARK: - ------Individual Func------
+    //MARK: -
+
+    
+    
+    
     @IBAction func lookOrChangeButton(sender: UIButton) {
         
         let actionSheet = UIAlertController(title: "更改头像", message: nil, preferredStyle: .ActionSheet)
@@ -46,10 +84,13 @@ class userViewController: UITableViewController{
         let cancelAction = UIAlertAction(title: "取消", style: .Cancel, handler: nil)
         let lookBigPicture = UIAlertAction(title: "拍照", style: .Default) { (nil) in
             
-            
+            //TODO: chang the userImage
+
         }
         let changePicture = UIAlertAction(title: "从相册获取", style: .Default) { (nil) in
             
+            //TODO: chang the userImage
+
         }
         actionSheet.addAction(lookBigPicture)
         actionSheet.addAction(changePicture)
@@ -57,6 +98,7 @@ class userViewController: UITableViewController{
         self.presentViewController(actionSheet, animated: true, completion: nil)
         
     }
+    
     
     @IBAction func exit(sender: UIButton) {
         
@@ -78,9 +120,7 @@ class userViewController: UITableViewController{
         alertExit.addAction(okAction)
         self.presentViewController(alertExit, animated: true, completion: nil)
     }
-    
 
-    
     func getNameAndID(){
         let studentName = studenInfo["name"] as! String
         let studentId = studenInfo["stu_id"] as! String
@@ -122,21 +162,5 @@ class userViewController: UITableViewController{
         sumOfChoose.text = String(xuefenXuan)
         sumOfNet.text = String(xuefenNet)
     }
-    
-    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
-        
-        if identifier == "exitSegue"{
-            if isExit == false{
-                return false
-            }
-        }
-        return true
-    }
-    
-    override func tableView(tableView: UITableView, estimatedHeightForFooterInSection section: Int) -> CGFloat {
-        if section == 2{
-            return 0
-        }
-        return 40.0
-    }
+
 }

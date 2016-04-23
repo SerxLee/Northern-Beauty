@@ -31,6 +31,11 @@ class SSReplyComment{
     
     var errNumber = 0
     
+    var isNew: Bool?
+    var courseName: String?
+    var commentText: String!
+    var dict: NSDictionary?
+    
     init(dict: NSDictionary?, comment: String, courseName: String, isNew: Bool){
         
         var urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)"
