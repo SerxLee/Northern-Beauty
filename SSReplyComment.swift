@@ -38,7 +38,7 @@ class SSReplyComment{
     
     init(dict: NSDictionary?, comment: String, courseName: String, isNew: Bool){
         
-        var urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)"
+        var urlComment = "https://usth.eycia.me/Reply/course/\(courseName)"
         self.authorName = studenInfo["name"]!
         self.stuId = studenInfo["stu_id"]!
         self.content = comment
@@ -50,7 +50,7 @@ class SSReplyComment{
             self.refedContent = dict!["content"]!
             self.refId = dict!["id"]!
             self.className = dict!["className"]!
-            urlComment = "http://msghub.eycia.me:4001/Reply/course/\(courseName)/\(refId)/reply"
+            urlComment = "https://usth.eycia.me/Reply/course/\(courseName)/\(refId)/reply"
         }
         
         let parameters: Dictionary<String, String> = ["content": content as! String]

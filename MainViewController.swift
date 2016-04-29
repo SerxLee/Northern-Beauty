@@ -35,7 +35,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     @IBOutlet weak var segment: UISegmentedControl!
     
     
-    var urlString: String =  "http://msghub.eycia.me:4001/Score"
+    var urlString: String =  "https://usth.eycia.me/Score"
     var userName: String!
     var passWord: String!
     var type: String = "passing"
@@ -192,7 +192,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func connetURL(){
         SVProgressHUD.show()
         
-        let eyciaURL = "http://msghub.eycia.me:4001/Score?username=\(userName)&password=\(passWord)&type=\(type)"
+        let eyciaURL = "https://usth.eycia.me/Score?username=\(userName)&password=\(passWord)&type=\(type)"
         
         session.POST(eyciaURL, parameters: nil, success: { (dataTask, response) in
             

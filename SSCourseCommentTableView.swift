@@ -154,16 +154,14 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
             }
             
             errorNumber = limComment.errNumber
-            
-            
-            
+   
             let myQueue = Singleton.sharedInstance
             dispatch_async(myQueue, {
                 //TODO: RunLoop
                 
                 let runloop: NSRunLoop = NSRunLoop.currentRunLoop()
                 
-                let mtyTimer = NSTimer(timeInterval: 1.0, target: self, selector: #selector(SSCourseCommentTableView.getErrorNum), userInfo: nil, repeats: false)
+                let mtyTimer = NSTimer(timeInterval: 2.0, target: self, selector: #selector(SSCourseCommentTableView.getErrorNum), userInfo: nil, repeats: false)
                 
                 runloop.addTimer(mtyTimer, forMode: NSDefaultRunLoopMode)
                 runloop.run()
@@ -247,7 +245,7 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
                 idLast    : the currunt data's last commmnet's ID
                 timeLast  : the currunt data's last commmnet publiced date -> it is a time stemp(时间戳)
         */
-        let limURL =  "http://msghub.eycia.me:4001/Reply/course/\(courseName)/20/\(idLast)/\(timeLast)"
+        let limURL =  "https://usth.eycia.me/Reply/course/\(courseName)/20/\(idLast)/\(timeLast)"
         
         //use to mark if connet or get back data is error
         var isError = 0
@@ -292,7 +290,7 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
                 idLast : "0"
                 timeLast : -1
         */
-        let eyciaURL = "http://msghub.eycia.me:4001/Reply/course/\(courseName)/20/\(idLast)/\(timeLast)"
+        let eyciaURL = "https://usth.eycia.me/Reply/course/\(courseName)/20/\(idLast)/\(timeLast)"
         
         session.GET(eyciaURL, parameters: nil, success: { (dataTask, response) in
             dataSourse = response!["data"] as! [NSDictionary]
@@ -374,7 +372,7 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
                 /*
              
                 */
-                let addDiggURL = "http://msghub.eycia.me:4001/Reply/\(diggedID)/digg/add"
+                let addDiggURL = "https://usth.eycia.me/Reply/\(diggedID)/digg/add"
             
                 var limDic = operateComment
                 if limDic["digged"] as! Bool == false{

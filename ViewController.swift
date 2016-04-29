@@ -29,7 +29,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     @IBOutlet weak var passWord: UITextField!
     @IBOutlet weak var loginButton: UIButton!
     
-    let checkURL = "http://msghub.eycia.me:4001/Score"
+    let checkURL = "https://usth.eycia.me/Score"
 
     var courseDataSourse: [NSDictionary] = []
     var studenInfoData: NSDictionary!
@@ -383,10 +383,11 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
             }else if error == 1{
 //                print(operation!["reason"])
                 var message = operation!["reason"] as! String
-                if message == "Post http://60.219.165.24/loginAction.do: net/http: request canceled (Client.Timeout exceeded while awaiting headers)"{
-                    message = "^ ^...Timeout, try again"
-                }
-                SVProgressHUD.showErrorWithStatus(message)
+//                if message == "Post http://60.219.165.24/loginAction.do: net/http: request canceled (Client.Timeout exceeded while awaiting headers)"{
+//                    message = "^ ^...Timeout, try again"
+//                }
+//                SVProgressHUD.showErrorWithStatus(message)
+                print(message)
 
             }
         }) {  (dataTask, error) -> Void in
