@@ -9,7 +9,7 @@
 import UIKit
 
 
-class userViewController: UITableViewController{
+class userViewController: UITableViewController, UIAlertViewDelegate{
    
     
     //MARK: - ------All Properties------
@@ -42,7 +42,7 @@ class userViewController: UITableViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.scrollEnabled = false
+//        tableView.scrollEnabled = false
         tableView.allowsSelection = false
         getNameAndID()
         getSumOfScore()
@@ -68,7 +68,22 @@ class userViewController: UITableViewController{
         return 40.0
     }
 
-    
+    func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+        
+        if buttonIndex == alertView.firstOtherButtonIndex{
+
+            //确认退出
+            self.isExit = true
+            self.shouldPerformSegueWithIdentifier("exitSegue", sender: nil)
+            self.performSegueWithIdentifier("exitSegue", sender: nil)
+        }
+        if buttonIndex == alertView.cancelButtonIndex{
+            
+            //取消退出
+            self.isExit = false
+            self.shouldPerformSegueWithIdentifier("exitSegue", sender: nil)
+        }
+    }
     
     
     //MARK: - ------Individual Func------
@@ -76,7 +91,7 @@ class userViewController: UITableViewController{
 
     
     
-    
+    /*
     @IBAction func lookOrChangeButton(sender: UIButton) {
         
         let actionSheet = UIAlertController(title: "更改头像", message: nil, preferredStyle: .ActionSheet)
@@ -98,27 +113,34 @@ class userViewController: UITableViewController{
         self.presentViewController(actionSheet, animated: true, completion: nil)
         
     }
-    
+    */
     
     @IBAction func exit(sender: UIButton) {
         
-        let alertExit = UIAlertController(title: nil, message: "确认注销登录？", preferredStyle: .Alert)
-        let cancleAction = UIAlertAction(title: "取消", style: .Cancel) { (nil) in
-            
-            //取消退出
-            self.isExit = false
-            self.shouldPerformSegueWithIdentifier("exitSegue", sender: nil)
+        if #available(iOS 8.0, *) {
+            let alertExit = UIAlertController(title: nil, message: "确认注销登录？", preferredStyle: .Alert)
+            let cancleAction = UIAlertAction(title: "取消", style: .Cancel) { (nil) in
+                
+                //取消退出
+                self.isExit = false
+                self.shouldPerformSegueWithIdentifier("exitSegue", sender: nil)
+            }
+            let okAction = UIAlertAction(title: "确认", style: .Default) { (nil) in
+                
+                //确认退出
+                self.isExit = true
+                self.shouldPerformSegueWithIdentifier("exitSegue", sender: nil)
+                self.performSegueWithIdentifier("exitSegue", sender: nil)
+            }
+            alertExit.addAction(cancleAction)
+            alertExit.addAction(okAction)
+            self.presentViewController(alertExit, animated: true, completion: nil)
+        } else {
+            // Fallback on earlier versions
+            let alertExit = UIAlertView(title: "", message: "确认注销登录？", delegate: self, cancelButtonTitle: "取消", otherButtonTitles: "确认")
+            alertExit.show()
         }
-        let okAction = UIAlertAction(title: "确认", style: .Default) { (nil) in
-            
-            //确认退出
-            self.isExit = true
-            self.shouldPerformSegueWithIdentifier("exitSegue", sender: nil)
-            self.performSegueWithIdentifier("exitSegue", sender: nil)
-        }
-        alertExit.addAction(cancleAction)
-        alertExit.addAction(okAction)
-        self.presentViewController(alertExit, animated: true, completion: nil)
+        
     }
 
     func getNameAndID(){

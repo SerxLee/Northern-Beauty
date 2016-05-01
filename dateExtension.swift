@@ -18,6 +18,7 @@ extension NSDate{
     }
     func fullDescription() -> String {
         let calendar = NSCalendar.currentCalendar()
+        
         if calendar.isDateInToday(self) {
             let delta = Int(NSDate().timeIntervalSinceDate(self))
             if delta < 60 {
@@ -41,7 +42,6 @@ extension NSDate{
             let df = NSDateFormatter()
             df.dateFormat = dateformatString
             return df.stringFromDate(self)
-            
          }
     }
 }

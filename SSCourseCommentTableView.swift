@@ -15,7 +15,7 @@ import SVProgressHUD
 //save the comment's value
 var dataSourse: [NSDictionary] = []
 
-class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UITextFieldDelegate{
+class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UITextFieldDelegate, UIAlertViewDelegate{
     
 
     
@@ -85,6 +85,7 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        SVProgressHUD.setMinimumDismissTimeInterval(1.0)
         
         timeLast = -1
         idLast = "0"
@@ -93,6 +94,7 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
         self.tableView.allowsSelection = false
         self.tableView.tableFooterView = UIView.init()
         tableView.addSubview(fakeCommentInputField)
+        
         
         getDataFromEYCIA()
     }
@@ -128,14 +130,20 @@ class SSCourseCommentTableView: UITableViewController, SSCourseCellDelegate, UIT
             let comment = textField.text
             
             if comment == ""{
-                let alert = UIAlertController(title: nil, message: "请输入评论内容", preferredStyle: .Alert)
-                let okAction = UIAlertAction(title: "确定", style: .Default, handler: { (nil) in
-                    if self.fakeCommentInputField.becomeFirstResponder() {
-                        self.realCommentInputField.becomeFirstResponder()
-                    }
-                })
-                alert.addAction(okAction)
-                self.presentViewController(alert, animated: true, completion: nil)
+                
+                if #available(iOS 8.0, *) {
+                    let alert = UIAlertController(title: nil, message: "请输入评论内容", preferredStyle: .Alert)
+                    let okAction = UIAlertAction(title: "确定", style: .Default, handler: { (nil) in
+                        if self.fakeCommentInputField.becomeFirstResponder() {
+                            self.realCommentInputField.becomeFirstResponder()
+                        }
+                    })
+                    alert.addAction(okAction)
+                    self.presentViewController(alert, animated: true, completion: nil)
+                } else {
+                    let alert = UIAlertView(title: nil, message: "请输入评论内容", delegate: self, cancelButtonTitle: "确定")
+                    alert.show()
+                }
                 return false
             }
             

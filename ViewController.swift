@@ -44,7 +44,9 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     var tapGesture = UITapGestureRecognizer()
 
     
-
+    var deviceHeight: CGFloat = 0.0
+    var deviceWidth: CGFloat = 0.0
+    
     //MARK: - ------Apple Inc.Func------
     //MARK: -
     
@@ -141,7 +143,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
                 self.passWord.resignFirstResponder()
             })
             
-            checkLoginInformation()
+//            checkLoginInformation()
         }
         return true
     }
@@ -194,8 +196,44 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     //MARK: - ------Individual Func------
     //MARK: -
 
-    
-    
+    /*
+     iPhone 6 plus/ 6s plus: 736 x 414
+     iPhone 6/ 6s          : 667 x 375
+     iPhone 5/ 5s/ se/ 5c  : 568 x 320
+     iPhone 4s             : 480 x 320
+     
+     iPad Air              : 1024 x 768
+     iPad3                 : 1024 x 768
+     iPad2                 : 1024 x 768
+     iPad mini2            : 1024 x 768
+     iPad mini             : 1024 x 768
+     */
+    func getDeviceSize(){
+        
+        let panDevice = currentDevice()
+        let type = panDevice.getInfo()
+        
+        switch type {
+        case .iphone6plus:
+            self.deviceHeight = 736
+            self.deviceWidth = 414
+        case .iphone6:
+            self.deviceHeight = 667
+            self.deviceWidth = 375
+        case .iphone5:
+            self.deviceHeight = 568
+            self.deviceWidth = 320
+        case .iphone4:
+            self.deviceHeight = 480
+            self.deviceWidth = 320
+        default:
+            self.deviceHeight = 1024
+            self.deviceWidth = 768
+        }
+        
+        noSlideLengh = self.deviceHeight / 4
+        slidLenght = self.deviceHeight / 6
+    }
 
     
     /*
@@ -286,6 +324,8 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     */
     func loadUI(){
 
+        self.getDeviceSize()
+        self.titleTopBoundHeight.constant = noSlideLengh
         /*
         tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewController.backToView(_:)))
         self.view.addGestureRecognizer(tapGesture)
@@ -381,17 +421,25 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
                 self.performSegueWithIdentifier("goToMainView", sender: nil)
                 
             }else if error == 1{
-//                print(operation!["reason"])
-                var message = operation!["reason"] as! String
+                print(operation!["reason"])
+                let message = operation!["reason"] as! String
 //                if message == "Post http://60.219.165.24/loginAction.do: net/http: request canceled (Client.Timeout exceeded while awaiting headers)"{
 //                    message = "^ ^...Timeout, try again"
 //                }
-//                SVProgressHUD.showErrorWithStatus(message)
+                SVProgressHUD.showErrorWithStatus(message)
+//                SVProgressHUD.dismiss()
+                
                 print(message)
 
             }
         }) {  (dataTask, error) -> Void in
-            print(error.localizedDescription)
+            print(error.code)
+            var message: String?
+            let errorCode = error.code
+            if errorCode == -1009{
+                message = "无法连接网络..."
+            }
+            SVProgressHUD.showErrorWithStatus(message)
         }
     }
     
@@ -405,6 +453,6 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     }
 }
 
-let slidLenght: CGFloat = 50.0
-let noSlideLengh: CGFloat = 110.0
+var slidLenght: CGFloat = 50.0
+var noSlideLengh: CGFloat = 110.0
 let tableViewCellHeight: CGFloat = 25.0
